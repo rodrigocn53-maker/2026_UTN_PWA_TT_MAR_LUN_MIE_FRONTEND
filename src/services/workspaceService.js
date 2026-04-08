@@ -1,5 +1,5 @@
 import ENVIRONMENT from "../config/environment";
-import { LOCALSTORAGE_TOKEN_KEY } from "../context/AuthContext";
+import { LOCALSTORAGE_TOKEN_KEY } from "../Context/AuthContext.jsx";
 
 export async function getWorkspaces (){
     const response_http = await fetch(

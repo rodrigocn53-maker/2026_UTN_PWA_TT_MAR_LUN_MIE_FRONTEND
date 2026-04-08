@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 import useForm from '../../hooks/useForm'
 import { login } from '../../services/authService'
 import useRequest from '../../hooks/useRequest'
-import { AuthContext } from '../../context/AuthContext'
+import { AuthContext } from '../../Context/AuthContext.jsx'
 
 const LoginScreen = () => {
 
