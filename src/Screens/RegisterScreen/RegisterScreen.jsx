@@ -62,26 +62,56 @@ const RegisterScreen = () => {
     )
 
     return (
-        <div>
-            <h1>
-                Registrarse
-            </h1>
-            <form onSubmit={onSubmit}>
-                <div>
-                    <label htmlFor="name">Name</label>
-                    <input type="text" id="name" name={REGISTER_FORM_FIELDS.NAME} onChange={handleChangeInput} value={formState[REGISTER_FORM_FIELDS.NAME]} />
+        <div className="auth-page">
+            <div className="auth-header">
+                <h1>Primero, ingresa tu email</h1>
+                <p>Te sugerimos usar la dirección de correo electrónico que usas en tu trabajo.</p>
+            </div>
+            
+            <div className="auth-form-card">
+                <form onSubmit={onSubmit}>
+                    <div className="auth-input-container">
+                        <label className="auth-label" htmlFor="name">Nombre</label>
+                        <input 
+                            className="auth-input"
+                            type="text" 
+                            id="name" 
+                            name={REGISTER_FORM_FIELDS.NAME} 
+                            onChange={handleChangeInput} 
+                            value={formState[REGISTER_FORM_FIELDS.NAME]} 
+                            placeholder="Tu nombre completo"
+                        />
+                    </div>
+                    <div className="auth-input-container">
+                        <label className="auth-label" htmlFor="email">Dirección de correo electrónico</label>
+                        <input 
+                            className="auth-input"
+                            type="email" 
+                            id="email" 
+                            name={REGISTER_FORM_FIELDS.EMAIL} 
+                            onChange={handleChangeInput} 
+                            value={formState[REGISTER_FORM_FIELDS.EMAIL]} 
+                            placeholder="nombre@trabajo.com"
+                        />
+                    </div>
+                    <div className="auth-input-container">
+                        <label className="auth-label" htmlFor="password">Contraseña</label>
+                        <input 
+                            className="auth-input"
+                            type="password" 
+                            id="password" 
+                            name={REGISTER_FORM_FIELDS.PASSWORD} 
+                            onChange={handleChangeInput} 
+                            value={formState[REGISTER_FORM_FIELDS.PASSWORD]} 
+                        />
+                    </div>
+                    <button className="auth-btn" type="submit">Continuar</button>
+                </form>
+
+                <div className="auth-links">
+                    <span>¿Ya tienes una cuenta? <Link to="/login">Iniciar sesión</Link></span>
                 </div>
-                <div>
-                    <label htmlFor="email">Email</label>
-                    <input type="email" id="email" name={REGISTER_FORM_FIELDS.EMAIL} onChange={handleChangeInput} value={formState[REGISTER_FORM_FIELDS.EMAIL]} />
-                </div>
-                <div>
-                    <label htmlFor="password">Password</label>
-                    <input type="password" id="password" name={REGISTER_FORM_FIELDS.PASSWORD} onChange={handleChangeInput} value={formState[REGISTER_FORM_FIELDS.PASSWORD]} />
-                </div>
-                <button type="submit" >Registrarse</button>
-            </form>
-            <span>Ya tienes una cuenta? <Link to="/login">Iniciar sesion</Link></span>
+            </div>
         </div>
     )
 }

@@ -63,43 +63,53 @@ const LoginScreen = () => {
             if(response && response.ok){
                 //Guardo el token en mi contexto
                 manageLogin(response.data.auth_token)
+            } else if (response && !response.ok && response.message) {
+                alert(response.message)
             }
         },
         [response]
     )
 
    
-    console.log(formState)
-
     return (
-        <div>
-            <h1>
-                Iniciar sesion
-            </h1>
-            <form onSubmit={onSubmit}>
-                <div>
-                    <label htmlFor="email">Email</label>
-                    <input 
-                        type="email" 
-                        id="email"  
-                        name={LOGIN_FORM_FIELDS.EMAIL} 
-                        onChange={handleChangeInput}
-                    />
+        <div className="auth-page">
+            <div className="auth-header">
+                <h1>Iniciar sesión</h1>
+                <p>Te sugerimos usar la dirección de correo electrónico que usas en tu trabajo.</p>
+            </div>
+            
+            <div className="auth-form-card">
+                <form onSubmit={onSubmit}>
+                    <div className="auth-input-container">
+                        <label className="auth-label" htmlFor="email">Dirección de correo electrónico</label>
+                        <input 
+                            className="auth-input"
+                            type="email" 
+                            id="email"  
+                            name={LOGIN_FORM_FIELDS.EMAIL} 
+                            onChange={handleChangeInput}
+                            placeholder="nombre@trabajo.com"
+                        />
+                    </div>
+                    <div className="auth-input-container">
+                        <label className="auth-label" htmlFor="password">Contraseña</label>
+                        <input 
+                            className="auth-input"
+                            type="password" 
+                            id="password" 
+                            name={LOGIN_FORM_FIELDS.PASSWORD} 
+                            onChange={handleChangeInput}
+                            placeholder="Tu contraseña"
+                        />
+                    </div>
+                    <button className="auth-btn" type="submit">Iniciar sesión con Correo</button>
+                </form>
+
+                <div className="auth-links">
+                    <span>¿No tienes una cuenta? <Link to="/register">Crear una cuenta</Link></span>
+                    <span>¿Olvidaste tu contraseña? <Link to="/reset-password-request">Restablecer la contraseña</Link></span>
                 </div>
-                <div>
-                    <label htmlFor="password">Password</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name={LOGIN_FORM_FIELDS.PASSWORD} 
-                        onChange={handleChangeInput}
-                    />
-                </div>
-                <button type="submit">Iniciar sesion</button>
-            </form>
-            <span>No tienes una cuenta? <Link to="/register">Registrarse</Link></span>
-            <br/>
-            <span>Olvidaste tu contraseña? <Link to="/reset-password-request">Restablecer</Link></span>
+            </div>
         </div>
     )
 }
