@@ -46,13 +46,13 @@ const LoginScreen = () => {
         submitFn: onLogin //Funcion que se activa al enviar formulario
     })
 
-    console.log(
+/*     console.log(
         {
             response,
             error,
             loading
         }
-    )
+    ) */
 
     /* 
     La funcion se carga cada vez que cambie response
