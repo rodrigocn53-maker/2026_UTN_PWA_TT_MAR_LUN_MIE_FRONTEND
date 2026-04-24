@@ -1,5 +1,4 @@
-import { useState, useContext } from "react";
-import { AuthContext } from "../Context/AuthContext.jsx";
+import { useState } from "react";
 
 /* 
 Manejar con estados de react el estado actual de una consulta HTTP
@@ -17,29 +16,18 @@ function useRequest (){
     const [response, setResponse] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
-    
-    // Obtenemos la fucion logout del contexto global
-    const authContext = useContext(AuthContext);
+
 
     /* 
     Recibe una funcion que emita un consulta al servidor por parametro (Callback)
     */
-    async function sendRequest( {requestCb} ){
+    async function sendRequest( {requestCb, params} ){
         console.log('hola')
         try{
             setResponse(null) //Si habia una consulta anterior quiero limpiar la respuesta
             setError(null) //Si habia una consulta anterior quiero limpiar el error
             setLoading(true) //Como inicio una consulta al servidor quiero marcar que estamos cargando la respuesta
-            const response = await requestCb()
-            
-            // Capa de Seguridad Global: 
-            // Si cualquier endpoint nos responde con un 401 (No autorizado o token falso/expirado)
-            if (response && response.status === 401) {
-                if (authContext && authContext.logout) {
-                    authContext.logout();
-                }
-                throw new Error("Sesión expirada o inválida");
-            }
+            const response = await requestCb(params)
         
             setResponse(response) //Se guarda la respuesta
         }

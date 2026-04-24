@@ -6,7 +6,7 @@ En caso de tener deja pasar
 
 
 import React, { useContext } from 'react'
-import { AuthContext } from '../Context/AuthContext.jsx'
+import { AuthContext } from '../Context/AuthContext'
 import { Navigate, Outlet } from 'react-router'
 
 const AuthMiddleware = () => {

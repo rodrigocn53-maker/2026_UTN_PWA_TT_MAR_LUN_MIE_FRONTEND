@@ -31,16 +31,9 @@ function AuthContextProvider ({children}){
         navigate('/home')
     }
 
-    function logout() {
-        localStorage.removeItem(LOCALSTORAGE_TOKEN_KEY)
-        setIsLogged(false)
-        navigate('/login')
-    }
-
     const providerValues = {
         isLogged,
-        manageLogin,
-        logout
+        manageLogin
     }
 
     return (

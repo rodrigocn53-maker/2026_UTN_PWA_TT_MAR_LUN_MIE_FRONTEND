@@ -63,11 +63,13 @@ const RegisterScreen = () => {
 
     return (
         <div className="auth-page">
+            <header style={{ marginBottom: '40px' }}>
+                <svg viewBox="0 0 244.8 244.8" width="120" height="120" xmlns="http://www.w3.org/2000/svg"><path d="m89.7 155.1c-15.8 0-28.6 12.8-28.6 28.6s12.8 28.6 28.6 28.6 28.6-12.8 28.6-28.6v-28.6z" fill="#e01e5a"/><path d="m104 155.1c0-15.8-12.8-28.6-28.6-28.6s-28.6 12.8-28.6 28.6 12.8 28.6 28.6 28.6h28.6z" fill="#e01e5a"/><path d="m89.7 89.7c0 15.8-12.8 28.6-28.6 28.6s-28.6-12.8-28.6-28.6 12.8-28.6 28.6-28.6 28.6 12.8 28.6 28.6z" fill="#36c5f0"/><path d="m89.7 104c15.8 0 28.6-12.8 28.6-28.6s-12.8-28.6-28.6-28.6-28.6 12.8-28.6 28.6v28.6z" fill="#36c5f0"/><path d="m155.1 89.7c15.8 0 28.6-12.8 28.6-28.6s-12.8-28.6-28.6-28.6-28.6 12.8-28.6 28.6v28.6z" fill="#2eb67d"/><path d="m140.8 89.7c0 15.8 12.8 28.6 28.6 28.6s28.6-12.8 28.6-28.6-12.8-28.6-28.6-28.6h-28.6z" fill="#2eb67d"/><path d="m155.1 155.1c0-15.8 12.8-28.6 28.6-28.6s28.6 12.8 28.6 28.6-12.8 28.6-28.6 28.6-28.6-12.8-28.6-28.6z" fill="#ecb22e"/><path d="m155.1 140.8c-15.8 0-28.6 12.8-28.6 28.6s12.8 28.6 28.6 28.6 28.6-12.8 28.6-28.6v-28.6z" fill="#ecb22e"/></svg>
+            </header>
             <div className="auth-header">
-                <h1>Primero, ingresa tu email</h1>
-                <p>Te sugerimos usar la dirección de correo electrónico que usas en tu trabajo.</p>
+                <h1>Únete a Slack</h1>
+                <p>Te sugerimos usar la <strong>dirección de correo que usas en el trabajo.</strong></p>
             </div>
-            
             <div className="auth-form-card">
                 <form onSubmit={onSubmit}>
                     <div className="auth-input-container">
@@ -83,7 +85,7 @@ const RegisterScreen = () => {
                         />
                     </div>
                     <div className="auth-input-container">
-                        <label className="auth-label" htmlFor="email">Dirección de correo electrónico</label>
+                        <label className="auth-label" htmlFor="email">Email</label>
                         <input 
                             className="auth-input"
                             type="email" 
@@ -103,11 +105,11 @@ const RegisterScreen = () => {
                             name={REGISTER_FORM_FIELDS.PASSWORD} 
                             onChange={handleChangeInput} 
                             value={formState[REGISTER_FORM_FIELDS.PASSWORD]} 
+                            placeholder="Crea una contraseña"
                         />
                     </div>
-                    <button className="auth-btn" type="submit">Continuar</button>
+                    <button className="auth-btn" type="submit">Registrarse</button>
                 </form>
-
                 <div className="auth-links">
                     <span>¿Ya tienes una cuenta? <Link to="/login">Iniciar sesión</Link></span>
                 </div>
