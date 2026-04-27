@@ -16,12 +16,14 @@ const LoginScreen = () => {
 
     const LOGIN_FORM_FIELDS = {
         EMAIL: 'email',
-        PASSWORD: 'password'
+        PASSWORD: 'password',
+        REMEMBER_ME: 'rememberMe'
     }
 
     const initialFormState = {
         [LOGIN_FORM_FIELDS.EMAIL]: '',
-        [LOGIN_FORM_FIELDS.PASSWORD]: ''
+        [LOGIN_FORM_FIELDS.PASSWORD]: '',
+        [LOGIN_FORM_FIELDS.REMEMBER_ME]: false
     }
 
     const {manageLogin} = useContext(AuthContext)
@@ -31,7 +33,8 @@ const LoginScreen = () => {
             requestCb: async () => {
                 return await login({
                     email: formState[LOGIN_FORM_FIELDS.EMAIL],
-                    password: formState[LOGIN_FORM_FIELDS.PASSWORD]
+                    password: formState[LOGIN_FORM_FIELDS.PASSWORD],
+                    rememberMe: formState[LOGIN_FORM_FIELDS.REMEMBER_ME]
                 })
             }
         })
@@ -61,8 +64,8 @@ const LoginScreen = () => {
         () => {
             //Si la respuesta es correcta
             if(response && response.ok){
-                //Guardo el token en mi contexto
-                manageLogin(response.data.auth_token)
+                // El token ya está en la cookie HttpOnly, el context lo valida
+                manageLogin()
             }
         },
         [response]
@@ -103,6 +106,19 @@ const LoginScreen = () => {
                             onChange={handleChangeInput}
                             placeholder="Tu contraseña"
                         />
+                    </div>
+                    <div className="auth-input-container" style={{ flexDirection: 'row', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+                        <input 
+                            type="checkbox" 
+                            id="rememberMe" 
+                            name={LOGIN_FORM_FIELDS.REMEMBER_ME}
+                            checked={formState[LOGIN_FORM_FIELDS.REMEMBER_ME]}
+                            onChange={handleChangeInput}
+                            style={{ cursor: 'pointer' }}
+                        />
+                        <label className="auth-label" htmlFor="rememberMe" style={{ marginBottom: 0, cursor: 'pointer', fontWeight: 'normal' }}>
+                            Mantener sesión iniciada
+                        </label>
                     </div>
                     <button className="auth-btn" type="submit">Iniciar sesión</button>
                     {response && !response.ok && (

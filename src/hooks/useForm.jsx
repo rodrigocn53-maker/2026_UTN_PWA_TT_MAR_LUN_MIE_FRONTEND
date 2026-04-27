@@ -19,7 +19,7 @@ function useForm({ initialFormState, submitFn}) {
 
     function handleChangeInput(event) {
         const field_name = event.target.name
-        const field_value = event.target.value
+        const field_value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
         setFormState(
             (prevFormState) => {
                 return {

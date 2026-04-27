@@ -1,14 +1,11 @@
 import ENVIRONMENT from "../config/environment";
-import { LOCALSTORAGE_TOKEN_KEY } from "../Context/AuthContext";
 
 export async function getWorkspaces (){
     const response_http = await fetch(
         ENVIRONMENT.API_URL + '/api/workspace',
         {
             method: 'GET',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem(LOCALSTORAGE_TOKEN_KEY)
-            }
+            credentials: 'include'
         }
     )
 
@@ -18,12 +15,11 @@ export async function getWorkspaces (){
 
 
 export async function createWorkspace(params) {
-  const token = localStorage.getItem(LOCALSTORAGE_TOKEN_KEY);
   const response = await fetch(`${ENVIRONMENT.API_URL}/api/workspace`, {
     method: "POST",
+    credentials: 'include',
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({...params, url_image: params.url_image || "https://placehold.co/600x400"}),
   });
@@ -34,12 +30,9 @@ export async function createWorkspace(params) {
 }
 
 export async function getWorkspaceById(workspace_id) {
-    const token = localStorage.getItem(LOCALSTORAGE_TOKEN_KEY);
     const response = await fetch(`${ENVIRONMENT.API_URL}/api/workspace/${workspace_id}`, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      credentials: 'include'
     });
     if (!response.ok) {
       const errorData = await response.json();
@@ -47,3 +40,52 @@ export async function getWorkspaceById(workspace_id) {
     }
     return response.json();
   }
+
+export async function updateWorkspace(workspace_id, title, description, url_image) {
+    const response = await fetch(`${ENVIRONMENT.API_URL}/api/workspace/${workspace_id}`, {
+      method: "PUT",
+      credentials: 'include',
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ title, description, url_image })
+    });
+    if (!response.ok) {
+      throw new Error("Error al actualizar el espacio de trabajo");
+    }
+    return response.json();
+}
+
+export async function deleteWorkspace(workspace_id) {
+    const response = await fetch(`${ENVIRONMENT.API_URL}/api/workspace/${workspace_id}`, {
+      method: "DELETE",
+      credentials: 'include'
+    });
+    if (!response.ok) {
+      throw new Error("Error al eliminar el espacio de trabajo");
+    }
+    return response.json();
+}
+
+export async function leaveWorkspace(workspace_id) {
+    const response = await fetch(`${ENVIRONMENT.API_URL}/api/workspace/${workspace_id}/leave`, {
+      method: "DELETE",
+      credentials: 'include'
+    });
+    if (!response.ok) {
+      throw new Error("Error al abandonar el espacio de trabajo");
+    }
+    return response.json();
+}
+
+export async function inviteToWorkspace(workspace_id, identifier) {
+    const response = await fetch(`${ENVIRONMENT.API_URL}/api/workspace/${workspace_id}/member/invite`, {
+      method: "POST",
+      credentials: 'include',
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ identifier, role: 'member' })
+    });
+    return response.json();
+}

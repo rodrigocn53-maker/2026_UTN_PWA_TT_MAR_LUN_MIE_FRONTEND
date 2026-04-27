@@ -1,16 +1,13 @@
-/* 
-Un componente a nivel de ruta que va a checkear si el usuario tiene o no sesion
-En caso de no tener redirecciona a login
-En caso de tener deja pasar
-*/
-
-
 import React, { useContext } from 'react'
 import { AuthContext } from '../Context/AuthContext'
 import { Navigate, Outlet } from 'react-router'
 
 const AuthMiddleware = () => {
-    const {isLogged} =  useContext(AuthContext)
+    const { isLogged, isLoading } = useContext(AuthContext)
+
+    // Si estamos cargando la validación inicial, no redirigimos todavía
+    if (isLoading) return null;
+
     return (
         <>
             {

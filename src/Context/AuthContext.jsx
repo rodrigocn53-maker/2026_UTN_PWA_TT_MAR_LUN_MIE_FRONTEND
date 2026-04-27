@@ -1,44 +1,76 @@
-import { createContext, useState } from "react";
-import { useNavigate } from "react-router";
+import { createContext, useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router";
+import { verifyTokenAPI, logoutAPI } from "../services/authService";
 
 export const AuthContext = createContext(
     {
         isLogged: false,
-        manageLogin: (auth_token) => {}
+        isLoading: true,
+        user: null,
+        manageLogin: () => {},
+        manageLogout: () => {}
     }
 )
 
-export const LOCALSTORAGE_TOKEN_KEY = 'auth_token_slack'
-
-/* 
-Va a manejar el estado de sesion del usuario
-Es un contexto global
-    Esto es asi porque queremos desde cualquier lugar de la aplicacion saber si el usuario esta o no logueado
-*/
 function AuthContextProvider ({children}){
     const navigate = useNavigate()
-    const [isLogged, setIsLogged] = useState(
-        Boolean(
-            localStorage.getItem(LOCALSTORAGE_TOKEN_KEY)
-        )
-    )
+    const location = useLocation()
+    
+    const [isLogged, setIsLogged] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
+    const [user, setUser] = useState(null)
 
-    function manageLogin (auth_token){
-        //Guardar el auth_token en el localstorage
-        localStorage.setItem('auth_token_slack', auth_token)
-        setIsLogged(true)
-        //Redirecciono a home
-        navigate('/home')
+    useEffect(() => {
+        const initAuth = async () => {
+            const response = await verifyTokenAPI();
+            if (response.ok) {
+                setIsLogged(true);
+                setUser(response.data.user);
+            } else {
+                setIsLogged(false);
+                setUser(null);
+            }
+            setIsLoading(false);
+        };
+        initAuth();
+    }, [])
+
+    const manageLogin = async () => {
+        // Volvemos a validar con el servidor para obtener los datos del usuario recién logueado
+        const response = await verifyTokenAPI();
+        if (response.ok) {
+            setIsLogged(true);
+            setUser(response.data.user);
+            navigate('/home');
+        }
+    }
+
+    async function manageLogout (){
+        setIsLoading(true);
+        await logoutAPI();
+        setIsLogged(false);
+        setUser(null);
+        setIsLoading(false);
+        navigate('/login');
     }
 
     const providerValues = {
         isLogged,
-        manageLogin
+        isLoading,
+        user,
+        manageLogin,
+        manageLogout
     }
 
     return (
         <AuthContext.Provider value={providerValues}>
-            {children}
+            {isLoading && location.pathname !== '/login' && location.pathname !== '/register' ? (
+                <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', fontFamily: 'Inter, sans-serif' }}>
+                    <h2>Cargando sesión...</h2>
+                </div>
+            ) : (
+                children
+            )}
         </AuthContext.Provider>
     )
 }
