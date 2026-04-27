@@ -90,11 +90,16 @@ const TopNav = ({ currentWorkspaceId, onChannelSelect }) => {
         try {
             const res = await respondToInvitation(notifId, action);
             if (res.ok) {
+                alert(`Has ${action === 'accepted' ? 'aceptado' : 'rechazado'} la invitación.`);
                 fetchNotifications();
                 if (action === 'accepted') window.location.reload(); 
+                else setIsNotificationOpen(false);
+            } else {
+                alert(res.message || "Error al procesar la invitación");
             }
         } catch (err) {
             console.error("Error responding", err);
+            alert("Error de conexión al responder la invitación");
         }
     };
 

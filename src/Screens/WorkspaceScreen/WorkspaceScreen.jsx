@@ -323,13 +323,13 @@ const WorkspaceScreen = () => {
 
                                 {/* Message Input Box */}
                                 <form onSubmit={handleSendMessage} style={{ marginTop: 'auto' }}>
-                                    <div style={{ border: '1px solid #868686', borderRadius: '8px', padding: '8px', background: 'white' }}>
+                                    <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '8px', background: 'var(--bg-color)' }}>
                                         <input
                                             type="text"
                                             value={messageInput}
                                             onChange={(e) => setMessageInput(e.target.value)}
                                             placeholder={`Enviar mensaje a #${activeChannel.channel_name}`}
-                                            style={{ width: '100%', border: 'none', outline: 'none', fontSize: '15px' }}
+                                            style={{ width: '100%', border: 'none', outline: 'none', fontSize: '15px', background: 'transparent', color: 'var(--text-color)' }}
                                         />
                                         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
                                             <button 
@@ -368,9 +368,9 @@ const WorkspaceScreen = () => {
             {/* Modal de Invitación */}
             {isInviteModalOpen && (
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 2000 }}>
-                    <div style={{ background: 'white', padding: '32px', borderRadius: '12px', width: '100%', maxWidth: '450px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
+                    <div style={{ background: 'var(--bg-color)', padding: '32px', borderRadius: '12px', width: '100%', maxWidth: '450px', boxShadow: '0 10px 25px var(--shadow)', color: 'var(--text-color)', border: '1px solid var(--border-color)' }}>
                         <h2 style={{ marginBottom: '8px' }}>Invitar personas a {workspace?.title}</h2>
-                        <p style={{ color: '#616061', marginBottom: '24px', fontSize: '15px' }}>Ingresa su email o su ID público (ej. nombre#A9B2) para invitarlos.</p>
+                        <p style={{ color: 'var(--text-soft)', marginBottom: '24px', fontSize: '15px' }}>Ingresa su email o su ID público (ej. nombre#A9B2) para invitarlos.</p>
                         
                         <form onSubmit={handleInvite}>
                             <div style={{ marginBottom: '20px' }}>
@@ -380,12 +380,12 @@ const WorkspaceScreen = () => {
                                     placeholder="nombre@ejemplo.com o usuario#TAG"
                                     value={inviteIdentifier}
                                     onChange={(e) => setInviteIdentifier(e.target.value)}
-                                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '16px' }}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '16px', background: 'var(--bg-soft)', color: 'var(--text-color)' }}
                                     autoFocus
                                 />
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                                <button type="button" onClick={() => setIsInviteModalOpen(false)} style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid #ddd', background: 'white', cursor: 'pointer', fontWeight: 'bold' }}>Cancelar</button>
+                                <button type="button" onClick={() => setIsInviteModalOpen(false)} style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-soft)', color: 'var(--text-color)', cursor: 'pointer', fontWeight: 'bold' }}>Cancelar</button>
                                 <button type="submit" disabled={isInviting} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: '#007a5a', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>
                                     {isInviting ? 'Invitando...' : 'Enviar invitación'}
                                 </button>

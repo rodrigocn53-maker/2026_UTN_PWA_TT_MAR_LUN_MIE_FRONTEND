@@ -49,13 +49,7 @@ const LoginScreen = () => {
         submitFn: onLogin //Funcion que se activa al enviar formulario
     })
 
-    console.log(
-        {
-            response,
-            error,
-            loading
-        }
-    )
+
 
     /* 
     La funcion se carga cada vez que cambie response
@@ -72,7 +66,7 @@ const LoginScreen = () => {
     )
 
    
-    console.log(formState)
+
 
     return (
         <div className="auth-page">
@@ -120,7 +114,9 @@ const LoginScreen = () => {
                             Mantener sesión iniciada
                         </label>
                     </div>
-                    <button className="auth-btn" type="submit">Iniciar sesión</button>
+                    <button className="auth-btn" type="submit" disabled={loading}>
+                        {loading ? 'Cargando...' : 'Iniciar sesión'}
+                    </button>
                     {response && !response.ok && (
                         <div className="auth-error-box" style={{ marginTop: '15px', color: 'red', textAlign: 'center' }}>
                             {response.message}

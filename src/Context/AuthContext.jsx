@@ -48,6 +48,14 @@ function AuthContextProvider ({children}){
     async function manageLogout (){
         setIsLoading(true);
         await logoutAPI();
+        
+        // Reset theme to light on logout
+        localStorage.removeItem('theme');
+        localStorage.removeItem('accentColor');
+        document.documentElement.removeAttribute('data-theme');
+        document.documentElement.style.removeProperty('--accent-color');
+        document.documentElement.style.removeProperty('--accent-color-dark');
+        
         setIsLogged(false);
         setUser(null);
         setIsLoading(false);

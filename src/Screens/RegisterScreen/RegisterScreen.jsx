@@ -108,7 +108,9 @@ const RegisterScreen = () => {
                             placeholder="Crea una contraseña"
                         />
                     </div>
-                    <button className="auth-btn" type="submit">Registrarse</button>
+                    <button className="auth-btn" type="submit" disabled={loading}>
+                        {loading ? 'Registrando...' : 'Registrarse'}
+                    </button>
                 </form>
                 <div className="auth-links">
                     <span>¿Ya tienes una cuenta? <Link to="/login">Iniciar sesión</Link></span>

@@ -191,6 +191,7 @@ body {
     background: var(--bg-color);
     border-radius: 8px;
     box-shadow: 0 4px 12px var(--shadow);
+    border: 1px solid var(--border-color);
 }
 
 .auth-btn {
@@ -220,6 +221,16 @@ body {
     font-size: 16px;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
     box-shadow: none; /* Eliminar sombras internas */
+}
+
+/* Autofill styling to prevent white backgrounds in dark mode */
+.auth-input:-webkit-autofill,
+.auth-input:-webkit-autofill:hover, 
+.auth-input:-webkit-autofill:focus, 
+.auth-input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px var(--input-bg) inset !important;
+    -webkit-text-fill-color: var(--text-color) !important;
+    transition: background-color 5000s ease-in-out 0s;
 }
 
 .auth-input:focus {
