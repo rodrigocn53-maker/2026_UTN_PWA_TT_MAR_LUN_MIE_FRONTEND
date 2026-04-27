@@ -1,11 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import useForm from '../../hooks/useForm'
 import { login } from '../../services/authService'
 import useRequest from '../../hooks/useRequest'
 import { AuthContext } from '../../Context/AuthContext'
 
 const LoginScreen = () => {
+    const navigate = useNavigate()
 
     const {
         sendRequest, 
@@ -26,7 +27,7 @@ const LoginScreen = () => {
         [LOGIN_FORM_FIELDS.REMEMBER_ME]: false
     }
 
-    const {manageLogin} = useContext(AuthContext)
+    const {manageLogin, isLogged, isLoading} = useContext(AuthContext)
 
     function onLogin (formState){
         sendRequest({
@@ -58,12 +59,19 @@ const LoginScreen = () => {
         () => {
             //Si la respuesta es correcta
             if(response && response.ok){
-                // El token ya está en la cookie HttpOnly, el context lo valida
-                manageLogin()
+                // Pasamos los datos del usuario directamente al context
+                manageLogin(response.data.user)
             }
         },
         [response]
     )
+
+    // Redirigir si ya está logueado
+    useEffect(() => {
+        if (!isLoading && isLogged) {
+            navigate('/home');
+        }
+    }, [isLogged, isLoading, navigate]);
 
    
 

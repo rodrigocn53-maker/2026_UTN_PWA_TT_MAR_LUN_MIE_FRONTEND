@@ -4,6 +4,7 @@ import { AuthContext } from '../../Context/AuthContext';
 import Avatar from '../Avatar/Avatar';
 import { globalSearch } from '../../services/searchService';
 import { getNotifications, respondToInvitation, markNotificationsAsRead } from '../../services/notificationService';
+import Toast from '../Toast/Toast';
 
 /**
  * Componente de Navegación Superior Unificado.
@@ -28,6 +29,12 @@ const TopNav = ({ currentWorkspaceId, onChannelSelect }) => {
     // Theme State
     const [themeMode, setThemeMode] = useState(localStorage.getItem('theme') || 'light');
     const [accentColor, setAccentColor] = useState(localStorage.getItem('accentColor') || '#3f0e40');
+
+    // Toast State
+    const [toast, setToast] = useState(null);
+    const showToast = (message, type = 'success') => {
+        setToast({ message, type });
+    };
 
     const hasUnreadNotifications = notifications.some(n => n.status === 'pending');
 
@@ -90,16 +97,16 @@ const TopNav = ({ currentWorkspaceId, onChannelSelect }) => {
         try {
             const res = await respondToInvitation(notifId, action);
             if (res.ok) {
-                alert(`Has ${action === 'accepted' ? 'aceptado' : 'rechazado'} la invitación.`);
+                showToast(`Has ${action === 'accepted' ? 'aceptado' : 'rechazado'} la invitación.`);
                 fetchNotifications();
-                if (action === 'accepted') window.location.reload(); 
+                if (action === 'accepted') setTimeout(() => window.location.reload(), 1500); 
                 else setIsNotificationOpen(false);
             } else {
-                alert(res.message || "Error al procesar la invitación");
+                showToast(res.message || "Error al procesar la invitación", 'error');
             }
         } catch (err) {
             console.error("Error responding", err);
-            alert("Error de conexión al responder la invitación");
+            showToast("Error de conexión al responder la invitación", 'error');
         }
     };
 
@@ -289,6 +296,7 @@ const TopNav = ({ currentWorkspaceId, onChannelSelect }) => {
                     )}
                 </div>
             </div>
+            {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
         </header>
     );
 };

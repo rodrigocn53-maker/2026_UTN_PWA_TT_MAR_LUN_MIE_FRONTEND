@@ -13,6 +13,7 @@ import { globalSearch } from '../../services/searchService'
 import { getNotifications, respondToInvitation, markNotificationsAsRead } from '../../services/notificationService'
 import Avatar from '../../Components/Avatar/Avatar'
 import TopNav from '../../Components/TopNav/TopNav'
+import Toast from '../../Components/Toast/Toast'
 
 const WorkspaceScreen = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -25,7 +26,14 @@ const WorkspaceScreen = () => {
     // Workspace & Messages State
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
     const [inviteIdentifier, setInviteIdentifier] = useState('')
+    const [inviteRole, setInviteRole] = useState('user')
     const [isInviting, setIsInviting] = useState(false)
+
+    // Toast State
+    const [toast, setToast] = useState(null)
+    const showToast = (message, type = 'success') => {
+        setToast({ message, type })
+    }
 
     const { workspace_id } = useParams()
     const { workspace, members, loading: loadingWorkspace, error: errorWorkspace } = useWorkspace(workspace_id)
@@ -47,16 +55,16 @@ const WorkspaceScreen = () => {
         if (!inviteIdentifier.trim()) return;
         setIsInviting(true);
         try {
-            const res = await inviteToWorkspace(workspace_id, inviteIdentifier);
+            const res = await inviteToWorkspace(workspace_id, inviteIdentifier, inviteRole);
             if (res.ok) {
-                alert("Invitación enviada con éxito");
+                showToast("Invitación enviada con éxito");
                 setIsInviteModalOpen(false);
                 setInviteIdentifier('');
             } else {
-                alert(res.message);
+                showToast(res.message, 'error');
             }
         } catch (err) {
-            alert("Error al enviar invitación");
+            showToast("Error al enviar invitación", 'error');
         } finally {
             setIsInviting(false);
         }
@@ -91,7 +99,7 @@ const WorkspaceScreen = () => {
             setMessageInput('');
             refetchMessages();
         } catch (err) {
-            alert("Error al enviar el mensaje: " + err.message);
+            showToast("Error al enviar el mensaje: " + err.message, 'error');
         }
     };
 
@@ -100,9 +108,10 @@ const WorkspaceScreen = () => {
         if (newTitle && newTitle.trim() !== "") {
             try {
                 await updateWorkspace(workspace_id, newTitle, workspace?.description, workspace?.url_image);
-                window.location.reload();
+                showToast("Espacio de trabajo actualizado");
+                setTimeout(() => window.location.reload(), 1000);
             } catch (err) {
-                alert("Error al actualizar el workspace: " + err.message);
+                showToast("Error al actualizar el workspace: " + err.message, 'error');
             }
         }
     };
@@ -111,9 +120,10 @@ const WorkspaceScreen = () => {
         if (window.confirm("¿Estás seguro de que deseas ELIMINAR este Workspace para todos los miembros? Esta acción es irreversible.")) {
             try {
                 await deleteWorkspace(workspace_id);
-                window.location.href = '/home';
+                showToast("Espacio de trabajo eliminado");
+                setTimeout(() => window.location.href = '/home', 1000);
             } catch (err) {
-                alert("Error al eliminar el workspace: " + err.message);
+                showToast("Error al eliminar el workspace: " + err.message, 'error');
             }
         }
     };
@@ -122,9 +132,10 @@ const WorkspaceScreen = () => {
         if (window.confirm("¿Estás seguro de que deseas ABANDONAR este Workspace? Ya no tendrás acceso a él.")) {
             try {
                 await leaveWorkspace(workspace_id);
-                window.location.href = '/home';
+                showToast("Has abandonado el espacio de trabajo");
+                setTimeout(() => window.location.href = '/home', 1000);
             } catch (err) {
-                alert("Error al abandonar el workspace: " + err.message);
+                showToast("Error al abandonar el workspace: " + err.message, 'error');
             }
         }
     };
@@ -384,6 +395,20 @@ const WorkspaceScreen = () => {
                                     autoFocus
                                 />
                             </div>
+
+                            {userRole === 'owner' && (
+                                <div style={{ marginBottom: '20px' }}>
+                                    <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>Rol del invitado</label>
+                                    <select 
+                                        value={inviteRole}
+                                        onChange={(e) => setInviteRole(e.target.value)}
+                                        style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '16px', background: 'var(--bg-soft)', color: 'var(--text-color)', cursor: 'pointer' }}
+                                    >
+                                        <option value="user">Usuario</option>
+                                        <option value="admin">Administrador</option>
+                                    </select>
+                                </div>
+                            )}
                             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
                                 <button type="button" onClick={() => setIsInviteModalOpen(false)} style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-soft)', color: 'var(--text-color)', cursor: 'pointer', fontWeight: 'bold' }}>Cancelar</button>
                                 <button type="submit" disabled={isInviting} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: '#007a5a', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>
@@ -394,6 +419,7 @@ const WorkspaceScreen = () => {
                     </div>
                 </div>
             )}
+            {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
         </div>
     )
 }

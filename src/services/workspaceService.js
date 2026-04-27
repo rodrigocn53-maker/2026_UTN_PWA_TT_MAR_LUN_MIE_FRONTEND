@@ -78,14 +78,14 @@ export async function leaveWorkspace(workspace_id) {
     return response.json();
 }
 
-export async function inviteToWorkspace(workspace_id, identifier) {
+export async function inviteToWorkspace(workspace_id, identifier, role = 'user') {
     const response = await fetch(`${ENVIRONMENT.API_URL}/api/workspace/${workspace_id}/member/invite`, {
       method: "POST",
       credentials: 'include',
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ identifier, role: 'member' })
+      body: JSON.stringify({ identifier, role })
     });
     return response.json();
 }

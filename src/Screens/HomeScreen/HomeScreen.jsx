@@ -7,6 +7,7 @@ import TopNav from '../../Components/TopNav/TopNav'
 import { getAllUsers } from '../../services/userService'
 import { inviteToWorkspace } from '../../services/workspaceService'
 import Avatar from '../../Components/Avatar/Avatar'
+import Toast from '../../Components/Toast/Toast'
 
 const HomeScreen = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -19,6 +20,12 @@ const HomeScreen = () => {
     const [invitingUserId, setInvitingUserId] = useState(null)
     const [selectedWorkspaceId, setSelectedWorkspaceId] = useState('')
     const [isInviting, setIsInviting] = useState(false)
+
+    // Toast State
+    const [toast, setToast] = useState(null)
+    const showToast = (message, type = 'success') => {
+        setToast({ message, type })
+    }
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -33,7 +40,7 @@ const HomeScreen = () => {
 
     const handleInvite = async (userToInvite) => {
         if (!selectedWorkspaceId) {
-            alert("Por favor selecciona un espacio de trabajo")
+            showToast("Por favor selecciona un espacio de trabajo", 'warning')
             return
         }
         
@@ -42,14 +49,14 @@ const HomeScreen = () => {
             const identifier = `${userToInvite.username}#${userToInvite.tag}`
             const res = await inviteToWorkspace(selectedWorkspaceId, identifier)
             if (res.ok) {
-                alert(`¡Invitación enviada a ${userToInvite.name}!`)
+                showToast(`¡Invitación enviada a ${userToInvite.name}!`)
                 setInvitingUserId(null)
                 setSelectedWorkspaceId('')
             } else {
-                alert(res.message || "Error al enviar invitación")
+                showToast(res.message || "Error al enviar invitación", 'error')
             }
         } catch (err) {
-            alert("Error al procesar la invitación")
+            showToast("Error al procesar la invitación", 'error')
         } finally {
             setIsInviting(false)
         }
@@ -228,6 +235,7 @@ const HomeScreen = () => {
             </div>
 
             <NewWorkspaceModalScreen isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+            {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
         </div>
     )
 }

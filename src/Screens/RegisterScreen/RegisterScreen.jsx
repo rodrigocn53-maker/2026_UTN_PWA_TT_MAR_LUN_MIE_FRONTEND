@@ -3,15 +3,19 @@ import { Link, useNavigate } from 'react-router'
 import useForm from '../../hooks/useForm'
 import useRequest from '../../hooks/useRequest'
 import { register } from '../../services/authService'
+import Toast from '../../Components/Toast/Toast'
+import { useState } from 'react'
 
 const RegisterScreen = () => {
 
     const {
-        sendRequest,
-        response,
-        error,
         loading
     } = useRequest()
+
+    const [toast, setToast] = useState(null)
+    const showToast = (message, type = 'success') => {
+        setToast({ message, type })
+    }
 
     const REGISTER_FORM_FIELDS = {
         EMAIL: 'email',
@@ -54,8 +58,8 @@ const RegisterScreen = () => {
     useEffect (
         () => {
             if(response && response.ok){
-                alert('Te has registrado exitosamente, te enviamos un mail con instrucciones')
-                navigate('/login')
+                showToast('Te has registrado exitosamente, te enviamos un mail con instrucciones')
+                setTimeout(() => navigate('/login'), 2000)
             }
         },
         [response]
@@ -116,6 +120,7 @@ const RegisterScreen = () => {
                     <span>¿Ya tienes una cuenta? <Link to="/login">Iniciar sesión</Link></span>
                 </div>
             </div>
+            {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
         </div>
     )
 }

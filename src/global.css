@@ -285,3 +285,17 @@ body {
     font-weight: 700;
     color: var(--text-color);
 }
+.slack-loading-pulse {
+    animation: slack-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes slack-pulse {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    50% { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+@keyframes toast-in {
+    from { transform: translate(-50%, 100%); opacity: 0; }
+    to { transform: translate(-50%, 0); opacity: 1; }
+}
