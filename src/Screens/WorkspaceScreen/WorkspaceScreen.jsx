@@ -20,6 +20,7 @@ const WorkspaceScreen = () => {
     const [isChannelModalOpen, setIsChannelModalOpen] = useState(false)
     const [activeChannel, setActiveChannel] = useState(null)
     const [messageInput, setMessageInput] = useState('')
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     
     // Workspace & Messages State
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
@@ -228,8 +229,21 @@ const WorkspaceScreen = () => {
             />
 
             <div className="slack-main-body">
-                <aside className="slack-sidebar">
-                    <div className="slack-sidebar-header">Tus Workspaces</div>
+                <div 
+                    className={`sidebar-overlay ${isSidebarOpen ? 'visible' : ''}`} 
+                    onClick={() => setIsSidebarOpen(false)}
+                ></div>
+                <aside className={`slack-sidebar ${isSidebarOpen ? 'open' : ''}`}>
+                    <div className="slack-sidebar-header">
+                        <span>Tus Workspaces</span>
+                        <button 
+                            className="sidebar-toggle-btn" 
+                            style={{ color: 'white', marginLeft: 'auto' }}
+                            onClick={() => setIsSidebarOpen(false)}
+                        >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
+                    </div>
                     <div className="slack-sidebar-content">
                         <div className="slack-sidebar-group">
                             <div className="slack-sidebar-group-title">ESPACIOS DE TRABAJO</div>
@@ -240,7 +254,7 @@ const WorkspaceScreen = () => {
                                     return (
                                         <React.Fragment key={ws.workspace_id}>
                                             <li className={`slack-sidebar-item ${isSelected ? 'active' : ''}`}>
-                                                <Link to={'/workspace/' + ws.workspace_id} style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', width: '100%' }}>
+                                                <Link to={'/workspace/' + ws.workspace_id} onClick={() => setIsSidebarOpen(false)} style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', width: '100%' }}>
                                                     <span className="slack-channel-hash">#</span>
                                                     <span style={{ marginLeft: '8px', fontWeight: isSelected ? 'bold' : 'normal' }}>{ws.workspace_title}</span>
                                                 </Link>
@@ -259,7 +273,7 @@ const WorkspaceScreen = () => {
                                                                     backgroundColor: activeChannel?.channel_id === channel.channel_id ? '#1164A3' : 'transparent',
                                                                     color: activeChannel?.channel_id === channel.channel_id ? 'white' : 'inherit'
                                                                 }}
-                                                                onClick={() => setActiveChannel(channel)}
+                                                                onClick={() => { setActiveChannel(channel); setIsSidebarOpen(false); }}
                                                             >
                                                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                                                                     <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -287,6 +301,12 @@ const WorkspaceScreen = () => {
                 <main className="slack-chat-area">
                     <header className="slack-chat-header" style={{ padding: '0 20px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <button 
+                                className="sidebar-toggle-btn"
+                                onClick={() => setIsSidebarOpen(true)}
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                            </button>
                             <div style={{ fontWeight: 'bold' }}>
                                 {loadingWorkspace ? 'Cargando...' : workspace ? `# ${workspace.title || workspace.workspace_title || 'general'}` : 'Selecciona un Workspace'}
                             </div>

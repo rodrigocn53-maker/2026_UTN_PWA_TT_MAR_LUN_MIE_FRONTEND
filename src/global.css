@@ -135,6 +135,59 @@ body {
     display: flex;
     flex-direction: column;
     border-right: 1px solid var(--border-color);
+    transition: transform 0.3s ease, width 0.3s ease;
+}
+
+.sidebar-toggle-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 8px;
+    margin-right: 8px;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+@media (max-width: 768px) {
+    .slack-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 1000;
+        transform: translateX(-100%);
+        width: 280px;
+        box-shadow: 4px 0 15px rgba(0,0,0,0.2);
+    }
+
+    .slack-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .sidebar-toggle-btn {
+        display: flex;
+    }
+
+    .sidebar-overlay.visible {
+        display: block;
+    }
+
+    .slack-chat-header {
+        padding: 0 12px !important;
+    }
 }
 
 .slack-sidebar-header {

@@ -13,6 +13,7 @@ const HomeScreen = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const { workspaces, loading: loadingWorkspaces } = useWorkspaces()
     const { user: currentUser } = useContext(AuthContext)
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     
     const [users, setUsers] = useState([])
     const [loadingUsers, setLoadingUsers] = useState(true)
@@ -73,8 +74,21 @@ const HomeScreen = () => {
             <TopNav />
 
             <div className="slack-main-body">
-                <aside className="slack-sidebar">
-                    <div className="slack-sidebar-header">Tus Workspaces</div>
+                <div 
+                    className={`sidebar-overlay ${isSidebarOpen ? 'visible' : ''}`} 
+                    onClick={() => setIsSidebarOpen(false)}
+                ></div>
+                <aside className={`slack-sidebar ${isSidebarOpen ? 'open' : ''}`}>
+                    <div className="slack-sidebar-header">
+                        <span>Tus Workspaces</span>
+                        <button 
+                            className="sidebar-toggle-btn" 
+                            style={{ color: 'white', marginLeft: 'auto' }}
+                            onClick={() => setIsSidebarOpen(false)}
+                        >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
+                    </div>
                     <div className="slack-sidebar-content">
                         <div className="slack-sidebar-group">
                             <div className="slack-sidebar-group-title">ESPACIOS DE TRABAJO</div>
@@ -99,7 +113,15 @@ const HomeScreen = () => {
 
                 <main className="slack-chat-area">
                     <header className="slack-chat-header" style={{ padding: '0 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span>Bienvenido, {currentUser?.name}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <button 
+                                className="sidebar-toggle-btn"
+                                onClick={() => setIsSidebarOpen(true)}
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                            </button>
+                            <span>Bienvenido, {currentUser?.name}</span>
+                        </div>
                         <div style={{ fontSize: '12px', color: 'var(--text-soft)', fontWeight: 'normal' }}>
                             {users.length} usuarios en la plataforma
                         </div>
