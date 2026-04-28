@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 import useForm from '../../hooks/useForm'
 import { login } from '../../services/authService'
 import useRequest from '../../hooks/useRequest'
@@ -7,6 +7,8 @@ import { AuthContext } from '../../Context/AuthContext'
 
 const LoginScreen = () => {
     const navigate = useNavigate()
+    const [searchParams] = useSearchParams()
+    const isVerified = searchParams.get('verified') === 'true'
 
     const {
         sendRequest, 
@@ -86,6 +88,20 @@ const LoginScreen = () => {
                 <p>Te sugerimos usar la <strong>dirección de correo que usas en el trabajo.</strong></p>
             </div>
             <div className="auth-form-card">
+                {isVerified && (
+                    <div style={{ 
+                        backgroundColor: '#e6f4f1', 
+                        color: '#007a5a', 
+                        padding: '12px', 
+                        borderRadius: '4px', 
+                        marginBottom: '20px', 
+                        textAlign: 'center',
+                        fontWeight: '500',
+                        border: '1px solid #007a5a'
+                    }}>
+                        ¡Email verificado con éxito! Ya puedes iniciar sesión.
+                    </div>
+                )}
                 <form onSubmit={onSubmit}>
                     <div className="auth-input-container">
                         <label className="auth-label" htmlFor="email">Email</label>

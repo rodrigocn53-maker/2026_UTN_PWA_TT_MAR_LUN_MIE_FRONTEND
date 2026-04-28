@@ -9,7 +9,10 @@ import { useState } from 'react'
 const RegisterScreen = () => {
 
     const {
-        loading
+        loading,
+        sendRequest,
+        response,
+        error
     } = useRequest()
 
     const [toast, setToast] = useState(null)
@@ -55,14 +58,27 @@ const RegisterScreen = () => {
     }
     const { handleChangeInput, onSubmit, formState } = useForm({ initialFormState, submitFn: onRegister })
     const navigate = useNavigate()
-    useEffect (
+    useEffect(
         () => {
-            if(response && response.ok){
-                showToast('Te has registrado exitosamente, te enviamos un mail con instrucciones')
-                setTimeout(() => navigate('/login'), 2000)
+            if (response) {
+                if (response.ok) {
+                    showToast('Te has registrado exitosamente, te enviamos un mail con instrucciones')
+                    setTimeout(() => navigate('/login'), 2000)
+                } else {
+                    showToast(response.message || 'Error al registrarse', 'error')
+                }
             }
         },
         [response]
+    )
+
+    useEffect(
+        () => {
+            if (error) {
+                showToast('Error de conexión con el servidor', 'error')
+            }
+        },
+        [error]
     )
 
     return (

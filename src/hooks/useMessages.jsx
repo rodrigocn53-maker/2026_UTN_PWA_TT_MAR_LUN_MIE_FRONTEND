@@ -30,16 +30,21 @@ function useMessages(workspace_id, channel_id) {
             if (document.visibilityState === 'visible') {
                 fetchMessages(false);
             }
-        }, 5000);
+        }, 1000);
         return () => clearInterval(interval);
     }, [fetchMessages]);
+
+    const addOptimisticMessage = useCallback((newMessage) => {
+        setMessages(prev => [...prev, newMessage]);
+    }, []);
 
     return {
         messages,
         loading,
         isSyncing,
         error,
-        refetchMessages: fetchMessages
+        refetchMessages: fetchMessages,
+        addOptimisticMessage
     }
 }
 
