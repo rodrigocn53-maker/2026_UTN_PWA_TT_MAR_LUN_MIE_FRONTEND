@@ -13,6 +13,7 @@ import { deleteWorkspace, leaveWorkspace, updateWorkspace, inviteToWorkspace } f
 import { sendMessage, updateMessage, deleteMessage } from '../../services/messageService'
 import { globalSearch } from '../../services/searchService'
 import { getNotifications, respondToInvitation, markNotificationsAsRead } from '../../services/notificationService'
+import { getContacts } from '../../services/userService'
 import Avatar from '../../Components/Avatar/Avatar'
 import TopNav from '../../Components/TopNav/TopNav'
 import Toast from '../../Components/Toast/Toast'
@@ -33,6 +34,22 @@ const WorkspaceScreen = () => {
     const [inviteIdentifier, setInviteIdentifier] = useState('')
     const [inviteRole, setInviteRole] = useState('user')
     const [isInviting, setIsInviting] = useState(false)
+    const [contacts, setContacts] = useState([])
+    const [loadingContacts, setLoadingContacts] = useState(false)
+
+    useEffect(() => {
+        if (isInviteModalOpen) {
+            const fetchContacts = async () => {
+                setLoadingContacts(true)
+                const res = await getContacts()
+                if (res.ok) {
+                    setContacts(res.data)
+                }
+                setLoadingContacts(false)
+            }
+            fetchContacts()
+        }
+    }, [isInviteModalOpen])
 
     // Multimedia State
     const [selectedFile, setSelectedFile] = useState(null);
@@ -555,14 +572,41 @@ const WorkspaceScreen = () => {
 
             {isInviteModalOpen && (
                 <div className="modal-overlay">
-                    <div className="modal-content">
+                    <div className="modal-content" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
                         <h2>Invitar a {workspace?.title}</h2>
                         <form onSubmit={handleInvite}>
-                            <input type="text" value={inviteIdentifier} onChange={(e) => setInviteIdentifier(e.target.value)} placeholder="Email o ID público" className="auth-input" style={{ marginTop: '16px' }} />
+                            <input type="text" value={inviteIdentifier} onChange={(e) => setInviteIdentifier(e.target.value)} placeholder="Email o Tag Name (Ej: usuario#ABCD)" className="auth-input" style={{ marginTop: '16px' }} />
                             <select value={inviteRole} onChange={(e) => setInviteRole(e.target.value)} className="auth-input" style={{ marginTop: '16px' }}>
                                 <option value="user">Usuario</option>
                                 <option value="admin">Administrador</option>
                             </select>
+                            
+                            <div style={{ marginTop: '24px' }}>
+                                <h3 style={{ fontSize: '14px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px', marginBottom: '12px' }}>O selecciona de tus contactos</h3>
+                                {loadingContacts ? (
+                                    <div style={{ fontSize: '13px', color: 'var(--text-soft)' }}>Cargando contactos...</div>
+                                ) : contacts.length > 0 ? (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '150px', overflowY: 'auto' }}>
+                                        {contacts.map(c => (
+                                            <div key={c._id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px', border: '1px solid var(--border-color)', borderRadius: '6px', cursor: 'pointer', background: inviteIdentifier === `${c.username}#${c.tag}` ? 'var(--bg-soft)' : 'transparent' }} onClick={() => setInviteIdentifier(`${c.username}#${c.tag}`)}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <Avatar user={c} size="28px" />
+                                                    <div style={{ fontSize: '14px' }}>
+                                                        <div style={{ fontWeight: 'bold' }}>{c.name}</div>
+                                                        <div style={{ fontSize: '12px', color: 'var(--text-soft)' }}>{c.username}#{c.tag}</div>
+                                                    </div>
+                                                </div>
+                                                {inviteIdentifier === `${c.username}#${c.tag}` && (
+                                                    <div style={{ color: '#007a5a', fontWeight: 'bold' }}>✓</div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div style={{ fontSize: '13px', color: 'var(--text-soft)', fontStyle: 'italic' }}>No tienes contactos guardados. Agrega contactos desde la pantalla de inicio.</div>
+                                )}
+                            </div>
+
                             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
                                 <button type="button" onClick={() => setIsInviteModalOpen(false)} className="auth-btn" style={{ background: 'var(--bg-soft)', color: 'var(--text-color)' }}>Cancelar</button>
                                 <button type="submit" className="auth-btn">{isInviting ? 'Invitando...' : 'Invitar'}</button>

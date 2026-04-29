@@ -35,7 +35,23 @@ const RegisterScreen = () => {
         [REGISTER_FORM_FIELDS.EMAIL]: '',
         [REGISTER_FORM_FIELDS.PASSWORD]: ''
     }
+    const [passwordError, setPasswordError] = useState('')
+
     function onRegister(formState) {
+        const password = formState[REGISTER_FORM_FIELDS.PASSWORD];
+        
+        // Validación de contraseña
+        if (password.length < 8 || password.length > 16) {
+            setPasswordError('Falla: La contraseña debe tener entre 8 y 16 caracteres.');
+            return;
+        }
+        if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+            setPasswordError('Falla: La contraseña debe contener al menos un carácter especial.');
+            return;
+        }
+        
+        setPasswordError(''); // Limpiar errores si todo está bien
+
         try {
             sendRequest(
                 {
@@ -127,6 +143,7 @@ const RegisterScreen = () => {
                             value={formState[REGISTER_FORM_FIELDS.PASSWORD]} 
                             placeholder="Crea una contraseña"
                         />
+                        {passwordError && <div style={{ color: '#e01e5a', fontSize: '12px', marginTop: '6px', fontWeight: 'bold' }}>{passwordError}</div>}
                     </div>
                     <button className="auth-btn" type="submit" disabled={loading}>
                         {loading ? 'Registrando...' : 'Registrarse'}

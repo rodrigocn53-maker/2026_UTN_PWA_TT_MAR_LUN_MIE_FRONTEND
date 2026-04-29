@@ -12,3 +12,33 @@ export const getAllUsers = async () => {
         return { ok: false, message: "Error al conectar con el servidor" };
     }
 }
+
+export const addContact = async (contact_id) => {
+    try {
+        const response = await fetch(`${ENVIRONMENT.API_URL}/api/users/contacts`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ contact_id })
+        });
+        return await response.json();
+    } catch (error) {
+        console.error("Error adding contact", error);
+        return { ok: false, message: "Error al conectar con el servidor" };
+    }
+}
+
+export const getContacts = async () => {
+    try {
+        const response = await fetch(`${ENVIRONMENT.API_URL}/api/users/contacts`, {
+            method: 'GET',
+            credentials: 'include'
+        });
+        return await response.json();
+    } catch (error) {
+        console.error("Error fetching contacts", error);
+        return { ok: false, message: "Error al conectar con el servidor" };
+    }
+}
