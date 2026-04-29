@@ -17,6 +17,7 @@ import { getContacts } from '../../services/userService'
 import Avatar from '../../Components/Avatar/Avatar'
 import TopNav from '../../Components/TopNav/TopNav'
 import Toast from '../../Components/Toast/Toast'
+import SupportModal from '../../Components/SupportModal/SupportModal'
 import ENVIRONMENT from '../../config/environment'
 
 const WorkspaceScreen = () => {
@@ -28,6 +29,7 @@ const WorkspaceScreen = () => {
     const [activeChannel, setActiveChannel] = useState(null)
     const [messageInput, setMessageInput] = useState('')
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+    const [isSupportModalOpen, setIsSupportModalOpen] = useState(false)
     
     // Workspace & Messages State
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
@@ -326,6 +328,10 @@ const WorkspaceScreen = () => {
                                     );
                                 })}
                             </ul>
+                            <li className="slack-sidebar-item" style={{ opacity: 0.7, cursor: 'pointer', marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '12px', listStyle: 'none' }} onClick={() => setIsSupportModalOpen(true)}>
+                                <span style={{ fontSize: '18px' }}>💬</span>
+                                <span style={{ marginLeft: '8px' }}>Soporte</span>
+                            </li>
                         </div>
                     </div>
                 </aside>
@@ -550,6 +556,7 @@ const WorkspaceScreen = () => {
             </div>
 
             <NewWorkspaceModalScreen isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+            <SupportModal isOpen={isSupportModalOpen} onClose={() => setIsSupportModalOpen(false)} />
             <NewChannelModalScreen isOpen={isChannelModalOpen} onClose={() => setIsChannelModalOpen(false)} workspace_id={workspace_id} onSuccess={refetchChannels} />
             <EditChannelModalScreen isOpen={isEditChannelModalOpen} onClose={() => setIsEditChannelModalOpen(false)} workspace_id={workspace_id} channel={activeChannel} onSuccess={(action) => { 
                 if (action === 'delete') {

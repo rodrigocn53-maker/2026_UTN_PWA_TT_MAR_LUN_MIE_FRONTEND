@@ -30,6 +30,19 @@ export const addContact = async (contact_id) => {
     }
 }
 
+export const removeContact = async (contact_id) => {
+    try {
+        const response = await fetch(`${ENVIRONMENT.API_URL}/api/users/contacts/${contact_id}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+        return await response.json();
+    } catch (error) {
+        console.error("Error removing contact", error);
+        return { ok: false, message: "Error al conectar con el servidor" };
+    }
+}
+
 export const getContacts = async () => {
     try {
         const response = await fetch(`${ENVIRONMENT.API_URL}/api/users/contacts`, {

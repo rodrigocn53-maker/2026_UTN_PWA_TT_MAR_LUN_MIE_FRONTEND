@@ -4,16 +4,18 @@ import useWorkspaces from '../../hooks/useWorkspaces'
 import { AuthContext } from '../../Context/AuthContext'
 import NewWorkspaceModalScreen from '../NewWorkspaceModalScreen/NewWorkspaceModalScreen'
 import TopNav from '../../Components/TopNav/TopNav'
-import { getAllUsers, getContacts, addContact } from '../../services/userService'
+import { getAllUsers, getContacts, addContact, removeContact } from '../../services/userService'
 import { inviteToWorkspace } from '../../services/workspaceService'
 import Avatar from '../../Components/Avatar/Avatar'
 import Toast from '../../Components/Toast/Toast'
+import SupportModal from '../../Components/SupportModal/SupportModal'
 
 const HomeScreen = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const { workspaces, loading: loadingWorkspaces } = useWorkspaces()
     const { user: currentUser } = useContext(AuthContext)
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+    const [activeMenuId, setActiveMenuId] = useState(null)
     
     const [users, setUsers] = useState([])
     const [loadingUsers, setLoadingUsers] = useState(true)
@@ -28,8 +30,9 @@ const HomeScreen = () => {
         setToast({ message, type })
     }
 
-    const [contacts, setContacts] = useState([])
+    const [contacts, setContacts] = useState({ accepted: [], pending: [] })
     const [addingContactId, setAddingContactId] = useState(null)
+    const [isSupportModalOpen, setIsSupportModalOpen] = useState(false)
 
     useEffect(() => {
         const fetchUsersAndContacts = async () => {
@@ -41,6 +44,7 @@ const HomeScreen = () => {
                 setUsers(resUsers.data)
             }
             if (resContacts.ok) {
+                // Ahora resContacts.data tiene { accepted: [], pending: [] }
                 setContacts(resContacts.data)
             }
             setLoadingUsers(false)
@@ -52,19 +56,37 @@ const HomeScreen = () => {
         setAddingContactId(contactId)
         const res = await addContact(contactId)
         if (res.ok) {
-            // Re-fetch contacts to get the full object, or find it in users
             const userAdded = users.find(u => u._id === contactId)
             if (userAdded) {
-                setContacts([...contacts, userAdded])
+                setContacts(prev => ({
+                    ...prev,
+                    pending: [...prev.pending, userAdded]
+                }))
             }
-            showToast("Contacto agregado correctamente")
+            showToast("Solicitud de contacto enviada")
         } else {
-            showToast(res.message, 'error')
+            showToast(res.message || "Error al enviar solicitud", 'error')
         }
         setAddingContactId(null)
     }
 
+    const handleDeleteContact = async (contactId) => {
+        if (!window.confirm("¿Estás seguro de que quieres eliminar este contacto?")) return;
+        
+        const res = await removeContact(contactId)
+        if (res.ok) {
+            setContacts(prev => ({
+                ...prev,
+                accepted: prev.accepted.filter(c => c._id !== contactId)
+            }))
+            showToast("Contacto eliminado")
+        } else {
+            showToast(res.message || "Error al eliminar contacto", 'error')
+        }
+    }
+
     const handleInvite = async (userToInvite) => {
+        // ... (existing code)
         if (!selectedWorkspaceId) {
             showToast("Por favor selecciona un espacio de trabajo", 'warning')
             return
@@ -88,7 +110,7 @@ const HomeScreen = () => {
         }
     }
 
-    const filteredContacts = contacts.filter(c => 
+    const filteredContacts = (contacts.accepted || []).filter(c => 
         c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
         c.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
         c.email?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -98,99 +120,142 @@ const HomeScreen = () => {
         (u.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
         u.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
         u.email?.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        !contacts.some(c => c._id === u._id) && 
-        u._id !== currentUser?.id
+        !contacts.accepted?.some(c => c._id === u._id) && 
+        u._id !== currentUser?._id
     )
 
-    const renderUserItem = (u, isContact) => (
-        <div key={u._id} style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'space-between', 
-            padding: '12px', 
-            borderRadius: '8px',
-            transition: 'background 0.2s',
-            marginBottom: '4px',
-            border: invitingUserId === u._id ? '1px solid var(--accent-color)' : '1px solid transparent'
-        }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <Avatar user={u} size="36px" />
-                <div style={{ overflow: 'hidden' }}>
-                    <div style={{ fontWeight: 'bold', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.name}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-soft)' }}>{u.username}#{u.tag}</div>
-                </div>
-            </div>
-            
-            {invitingUserId === u._id ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}>
-                    <select 
-                        value={selectedWorkspaceId} 
-                        onChange={(e) => setSelectedWorkspaceId(e.target.value)}
-                        style={{ padding: '4px', borderRadius: '4px', fontSize: '12px', background: 'var(--bg-color)', color: 'var(--text-color)', border: '1px solid var(--border-color)' }}
-                    >
-                        <option value="">Selecciona Workspace</option>
-                        {workspaces?.map(ws => (
-                            <option key={ws.workspace_id} value={ws.workspace_id}>{ws.workspace_title}</option>
-                        ))}
-                    </select>
-                    <div style={{ display: 'flex', gap: '4px' }}>
-                        <button 
-                            onClick={() => setInvitingUserId(null)}
-                            style={{ padding: '4px 8px', fontSize: '11px', background: 'none', border: '1px solid var(--border-color)', color: 'var(--text-color)', borderRadius: '4px', cursor: 'pointer' }}
-                        >
-                            X
-                        </button>
-                        <button 
-                            onClick={() => handleInvite(u)}
-                            disabled={isInviting || !selectedWorkspaceId}
-                            style={{ padding: '4px 8px', fontSize: '11px', background: 'var(--accent-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                        >
-                            {isInviting ? '...' : 'Enviar'}
-                        </button>
+    const renderUserItem = (u, isContact) => {
+        const isPending = contacts.pending?.some(p => p._id === u._id);
+        
+        return (
+            <div key={u._id} style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'space-between', 
+                padding: '12px', 
+                borderRadius: '8px',
+                transition: 'background 0.2s',
+                marginBottom: '4px',
+                border: invitingUserId === u._id ? '1px solid var(--accent-color)' : '1px solid transparent'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <Avatar user={u} size="36px" />
+                    <div style={{ overflow: 'hidden' }}>
+                        <div style={{ fontWeight: 'bold', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.name}</div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-soft)' }}>{u.username}#{u.tag}</div>
                     </div>
                 </div>
-            ) : (
-                <div style={{ display: 'flex', gap: '8px' }}>
-                    {!isContact && (
+                
+                {invitingUserId === u._id ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}>
+                        <select 
+                            value={selectedWorkspaceId} 
+                            onChange={(e) => setSelectedWorkspaceId(e.target.value)}
+                            style={{ padding: '4px', borderRadius: '4px', fontSize: '12px', background: 'var(--bg-color)', color: 'var(--text-color)', border: '1px solid var(--border-color)' }}
+                        >
+                            <option value="">Selecciona Workspace</option>
+                            {workspaces?.map(ws => (
+                                <option key={ws.workspace_id} value={ws.workspace_id}>{ws.workspace_title}</option>
+                            ))}
+                        </select>
+                        <div style={{ display: 'flex', gap: '4px' }}>
+                            <button 
+                                onClick={() => setInvitingUserId(null)}
+                                style={{ padding: '4px 8px', fontSize: '11px', background: 'none', border: '1px solid var(--border-color)', color: 'var(--text-color)', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                                X
+                            </button>
+                            <button 
+                                onClick={() => handleInvite(u)}
+                                disabled={isInviting || !selectedWorkspaceId}
+                                style={{ padding: '4px 8px', fontSize: '11px', background: 'var(--accent-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                                {isInviting ? '...' : 'Enviar'}
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div style={{ display: 'flex', gap: '8px', position: 'relative' }}>
+                        {/* Botón de tres puntos para móvil */}
                         <button 
-                            onClick={() => handleAddContact(u._id)}
-                            disabled={addingContactId === u._id}
+                            className="user-item-menu-toggle"
+                            onClick={(e) => { e.stopPropagation(); setActiveMenuId(activeMenuId === u._id ? null : u._id); }}
                             style={{ 
-                                padding: '6px 12px', 
-                                fontSize: '12px', 
-                                borderRadius: '4px', 
-                                border: '1px solid var(--text-soft)', 
-                                background: 'transparent', 
+                                background: 'none', 
+                                border: 'none', 
                                 color: 'var(--text-soft)', 
-                                cursor: 'pointer',
-                                fontWeight: 'bold'
+                                cursor: 'pointer', 
+                                padding: '4px 8px',
+                                fontSize: '18px',
+                                fontWeight: 'bold',
+                                display: 'none' // Se activa por CSS en móvil
                             }}
                         >
-                            {addingContactId === u._id ? '...' : '+ Contacto'}
+                            ⋮
                         </button>
-                    )}
-                    <button 
-                        onClick={() => setInvitingUserId(u._id)}
-                        style={{ 
-                            padding: '6px 12px', 
-                            fontSize: '12px', 
-                            borderRadius: '4px', 
-                            border: '1px solid var(--accent-color)', 
-                            background: 'transparent', 
-                            color: 'var(--accent-color)', 
-                            cursor: 'pointer',
-                            fontWeight: 'bold'
-                        }}
-                    >
-                        Invitar
-                    </button>
-                </div>
-            )}
-        </div>
-    )
+
+                        <div className={`user-item-actions ${activeMenuId === u._id ? 'open' : ''}`}>
+                            {!isContact && (
+                                <button 
+                                    onClick={() => !isPending && handleAddContact(u._id)}
+                                    disabled={addingContactId === u._id || isPending}
+                                    style={{ 
+                                        padding: '6px 12px', 
+                                        fontSize: '12px', 
+                                        borderRadius: '4px', 
+                                        border: isPending ? '1px solid var(--border-color)' : '1px solid var(--text-soft)', 
+                                        background: isPending ? 'var(--bg-soft)' : 'transparent', 
+                                        color: isPending ? 'var(--text-soft)' : 'var(--text-soft)', 
+                                        cursor: isPending ? 'default' : 'pointer',
+                                        fontWeight: 'bold',
+                                        whiteSpace: 'nowrap'
+                                    }}
+                                >
+                                    {addingContactId === u._id ? '...' : isPending ? 'Pendiente' : '+ Contacto'}
+                                </button>
+                            )}
+                            <button 
+                                onClick={() => setInvitingUserId(u._id)}
+                                style={{ 
+                                    padding: '6px 12px', 
+                                    fontSize: '12px', 
+                                    borderRadius: '4px', 
+                                    border: '1px solid var(--accent-color)', 
+                                    background: 'transparent', 
+                                    color: 'var(--accent-color)', 
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                Invitar
+                            </button>
+                            {isContact && (
+                                <button 
+                                    onClick={() => handleDeleteContact(u._id)}
+                                    style={{ 
+                                        padding: '6px 12px', 
+                                        fontSize: '12px', 
+                                        borderRadius: '4px', 
+                                        border: '1px solid #e01e5a', 
+                                        background: 'transparent', 
+                                        color: '#e01e5a', 
+                                        cursor: 'pointer',
+                                        fontWeight: 'bold'
+                                    }}
+                                    title="Eliminar contacto"
+                                >
+                                    Eliminar
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
+        )
+    }
 
     return (
-        <div className="slack-app-layout">
+        <div className="slack-app-layout" onClick={() => setActiveMenuId(null)}>
             <TopNav />
 
             <div className="slack-main-body">
@@ -225,6 +290,10 @@ const HomeScreen = () => {
                                 <li className="slack-sidebar-item" style={{ opacity: 0.7, cursor: 'pointer' }} onClick={() => setIsModalOpen(true)}>
                                     <span>+</span>
                                     <span style={{ marginLeft: '8px' }}>Crear workspace</span>
+                                </li>
+                                <li className="slack-sidebar-item" style={{ opacity: 0.7, cursor: 'pointer', marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '12px' }} onClick={() => setIsSupportModalOpen(true)}>
+                                    <span style={{ fontSize: '18px' }}>💬</span>
+                                    <span style={{ marginLeft: '8px' }}>Soporte</span>
                                 </li>
                             </ul>
                         </div>
@@ -274,7 +343,7 @@ const HomeScreen = () => {
                                 </button>
                             </div>
                         </div>
-
+                        
                         {/* Right Panels (Contacts & Users) */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <input 
@@ -327,12 +396,12 @@ const HomeScreen = () => {
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </main>
             </div>
 
             <NewWorkspaceModalScreen isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+            <SupportModal isOpen={isSupportModalOpen} onClose={() => setIsSupportModalOpen(false)} />
             {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
         </div>
     )

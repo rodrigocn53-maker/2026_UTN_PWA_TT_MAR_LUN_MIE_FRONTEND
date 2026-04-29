@@ -466,3 +466,78 @@ select.auth-input {
         position: relative;
     }
 }
+
+/* User Item Actions (Responsive) */
+.user-item-actions {
+    display: flex;
+    gap: 8px;
+}
+
+@media (max-width: 600px) {
+    .user-item-menu-toggle {
+        display: block !important;
+    }
+
+    .user-item-actions {
+        display: none; /* Oculto por defecto en móvil */
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: var(--bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        box-shadow: 0 4px 12px var(--shadow);
+        z-index: 100;
+        padding: 8px;
+        flex-direction: column;
+        min-width: 120px;
+    }
+
+    .user-item-actions.open {
+        display: flex;
+        animation: fadeInDown 0.2s ease;
+    }
+
+    .user-item-actions button {
+        width: 100%;
+        text-align: center;
+        padding: 10px !important;
+    }
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Top Nav Responsive Fixes */
+@media (max-width: 480px) {
+    .slack-top-nav {
+        padding: 0 8px !important;
+    }
+    
+    .nav-home-link {
+        flex: 0 0 auto !important; /* El botón de Home ya no ocupa espacio infinito */
+        padding: 0 4px !important;
+    }
+
+    .nav-user-name {
+        display: none !important; /* Ocultamos el nombre en el header para ganar espacio */
+    }
+
+    .nav-right-section {
+        flex: 0 0 auto !important; /* La sección derecha ahora solo ocupa lo que necesita */
+        gap: 12px !important; /* Reducimos el espacio entre campana y avatar */
+        justify-content: flex-end !important;
+    }
+
+    .slack-search-bar {
+        margin: 0 8px !important;
+        flex: 1 !important; /* La barra de búsqueda se adapta mejor */
+    }
+
+    .slack-search-input {
+        text-align: left !important;
+        padding-left: 30px !important;
+    }
+}

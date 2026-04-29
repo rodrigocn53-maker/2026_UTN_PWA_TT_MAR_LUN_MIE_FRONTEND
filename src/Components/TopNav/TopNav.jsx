@@ -92,7 +92,7 @@ const TopNav = ({ currentWorkspaceId, onChannelSelect }) => {
 
     return (
         <header className="slack-top-nav" onClick={(e) => e.stopPropagation()} style={{ position: 'relative' }}>
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', minWidth: 0 }}>
+            <div className="nav-home-link" style={{ flex: 1, display: 'flex', alignItems: 'center', minWidth: 0 }}>
                 <Link to="/home" style={{ color: 'white', display: 'flex', alignItems: 'center', textDecoration: 'none', opacity: 0.8, padding: '4px 8px' }} title="Ir al Inicio">
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
                         <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
@@ -101,6 +101,7 @@ const TopNav = ({ currentWorkspaceId, onChannelSelect }) => {
             </div>
 
             <div className="slack-search-bar" style={{ position: 'relative', flex: 2, maxWidth: '600px', margin: '0 16px' }}>
+                {/* ... existing search input ... */}
                 <input 
                     type="text" 
                     className="slack-search-input" 
@@ -109,6 +110,7 @@ const TopNav = ({ currentWorkspaceId, onChannelSelect }) => {
                     onChange={handleSearch}
                     onClick={() => { if(searchQuery.trim() !== '') setIsSearchOpen(true); }}
                 />
+                {/* ... existing results logic ... */}
                 {isSearchOpen && (
                     <div 
                         style={{ 
@@ -166,11 +168,11 @@ const TopNav = ({ currentWorkspaceId, onChannelSelect }) => {
                 )}
             </div>
 
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '16px', minWidth: 0 }}>
+            <div className="nav-right-section" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '16px', minWidth: 0 }}>
                 <NotificationDropdown showToast={showToast} />
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', position: 'relative' }}>
-                    <div style={{ color: 'white', fontWeight: 'bold', fontSize: '14px' }}>{user?.name || 'Usuario'}</div>
+                    <div className="nav-user-name" style={{ color: 'white', fontWeight: 'bold', fontSize: '14px' }}>{user?.name || 'Usuario'}</div>
                     <div onClick={(e) => { e.stopPropagation(); setIsProfileMenuOpen(!isProfileMenuOpen); }} style={{ cursor: 'pointer' }}>
                         <Avatar user={user} size="32px" />
                     </div>
