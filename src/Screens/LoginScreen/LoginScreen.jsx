@@ -125,16 +125,21 @@ const LoginScreen = () => {
                             placeholder="Tu contraseña"
                         />
                     </div>
-                    <div className="auth-input-container" style={{ flexDirection: 'row', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+                    <div className="auth-input-container" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
                         <input 
                             type="checkbox" 
                             id="rememberMe" 
                             name={LOGIN_FORM_FIELDS.REMEMBER_ME}
                             checked={formState[LOGIN_FORM_FIELDS.REMEMBER_ME]}
                             onChange={handleChangeInput}
-                            style={{ cursor: 'pointer' }}
+                            style={{ 
+                                cursor: 'pointer', 
+                                width: '18px', 
+                                height: '18px', 
+                                margin: 0 
+                            }}
                         />
-                        <label className="auth-label" htmlFor="rememberMe" style={{ marginBottom: 0, cursor: 'pointer', fontWeight: 'normal' }}>
+                        <label className="auth-label" htmlFor="rememberMe" style={{ marginBottom: 0, cursor: 'pointer', fontWeight: 'normal', display: 'inline-block' }}>
                             Mantener sesión iniciada
                         </label>
                     </div>

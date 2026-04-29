@@ -10,29 +10,33 @@ import WorkspaceScreen from './Screens/WorkspaceScreen/WorkspaceScreen'
 
 
 
+import CookieConsent from './Components/CookieConsent/CookieConsent'
+
 const App = () => {
   return (
-    <Routes>
-      <Route path='/login' element={<LoginScreen />} />
-      <Route path='/register' element={<RegisterScreen />} />
-      <Route path='/' element={<LoginScreen />} />
-      <Route 
-        path="/reset-password-request" 
-        element={<ResetPasswordRequestScreen/>}
-      />
-      <Route 
-        path="/reset-password/:reset_password_token" 
-        element={<ResetPasswordScreen/>}
-      />
-      <Route element={<AuthMiddleware/>}>
+    <>
+      <Routes>
+        <Route path='/login' element={<LoginScreen />} />
+        <Route path='/register' element={<RegisterScreen />} />
+        <Route path='/' element={<LoginScreen />} />
         <Route 
-          path='/home' 
-          element={<HomeScreen/>}
+          path="/reset-password-request" 
+          element={<ResetPasswordRequestScreen/>}
         />
-        <Route path="/workspace/:workspace_id" element={<WorkspaceScreen />} />
-      </Route>
-
-    </Routes>
+        <Route 
+          path="/reset-password/:reset_password_token" 
+          element={<ResetPasswordScreen/>}
+        />
+        <Route element={<AuthMiddleware/>}>
+          <Route 
+            path='/home' 
+            element={<HomeScreen/>}
+          />
+          <Route path="/workspace/:workspace_id" element={<WorkspaceScreen />} />
+        </Route>
+      </Routes>
+      <CookieConsent />
+    </>
   )
 }
 
