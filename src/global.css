@@ -113,12 +113,17 @@ body {
 }
 
 .slack-sidebar-item {
-    padding: 4px 16px;
+    padding: 4px 12px;
     font-size: 15px;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
+    width: fit-content;
+    max-width: calc(100% - 16px);
+    border-radius: 9999px; /* Pill shape */
+    margin: 2px 8px;
+    word-break: break-word;
 }
 
 .slack-sidebar-content {
@@ -206,7 +211,7 @@ body {
 }
 
 .slack-sidebar-item.active {
-    background-color: #1164A3; /* Mantener azul Slack para activos */
+    background-color: #1164a3; /* Mantener azul Slack para activos */
     color: white;
 }
 
@@ -409,4 +414,23 @@ body {
 
 [data-theme='dark'] .message-actions button:hover {
     background-color: rgba(255, 255, 255, 0.1);
+}
+
+.desktop-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.mobile-actions {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .desktop-actions {
+        display: none !important;
+    }
+    .mobile-actions {
+        display: flex !important;
+        position: relative;
+    }
 }

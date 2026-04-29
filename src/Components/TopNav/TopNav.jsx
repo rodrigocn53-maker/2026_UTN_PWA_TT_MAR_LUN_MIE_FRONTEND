@@ -3,8 +3,8 @@ import { Link, useNavigate } from 'react-router';
 import { AuthContext } from '../../Context/AuthContext';
 import Avatar from '../Avatar/Avatar';
 import { globalSearch } from '../../services/searchService';
-import { getNotifications, respondToInvitation, markNotificationsAsRead } from '../../services/notificationService';
 import Toast from '../Toast/Toast';
+import NotificationDropdown from '../NotificationDropdown/NotificationDropdown';
 
 /**
  * Componente de Navegación Superior Unificado.
@@ -21,9 +21,7 @@ const TopNav = ({ currentWorkspaceId, onChannelSelect }) => {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
 
-    // Notifications & Profile State
-    const [notifications, setNotifications] = useState([]);
-    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+    // Profile State
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
     // Theme State
@@ -35,8 +33,6 @@ const TopNav = ({ currentWorkspaceId, onChannelSelect }) => {
     const showToast = (message, type = 'success') => {
         setToast({ message, type });
     };
-
-    const hasUnreadNotifications = notifications.some(n => n.status === 'pending');
 
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', themeMode);
@@ -56,22 +52,6 @@ const TopNav = ({ currentWorkspaceId, onChannelSelect }) => {
         };
         document.documentElement.style.setProperty('--accent-color-dark', darkenColor(accentColor, 30));
     }, [themeMode, accentColor]);
-
-    const fetchNotifications = async () => {
-        if (document.visibilityState !== 'visible') return;
-        try {
-            const res = await getNotifications();
-            if (res.ok) setNotifications(res.data);
-        } catch (err) {
-            console.error("Error fetching notifications", err);
-        }
-    };
-
-    useEffect(() => {
-        fetchNotifications();
-        const interval = setInterval(fetchNotifications, 20000);
-        return () => clearInterval(interval);
-    }, []);
 
     const handleSearch = async (e) => {
         const query = e.target.value;
@@ -93,32 +73,6 @@ const TopNav = ({ currentWorkspaceId, onChannelSelect }) => {
         }
     };
 
-    const handleRespondNotification = async (notifId, action) => {
-        try {
-            const res = await respondToInvitation(notifId, action);
-            if (res.ok) {
-                showToast(`Has ${action === 'accepted' ? 'aceptado' : 'rechazado'} la invitación.`);
-                fetchNotifications();
-                if (action === 'accepted') setTimeout(() => window.location.reload(), 1500); 
-                else setIsNotificationOpen(false);
-            } else {
-                showToast(res.message || "Error al procesar la invitación", 'error');
-            }
-        } catch (err) {
-            console.error("Error responding", err);
-            showToast("Error de conexión al responder la invitación", 'error');
-        }
-    };
-
-    const toggleNotifications = async () => {
-        const nextState = !isNotificationOpen;
-        setIsNotificationOpen(nextState);
-        if (nextState) {
-            await markNotificationsAsRead();
-            fetchNotifications();
-        }
-    };
-
     const handleResultClick = (type, item) => {
         setIsSearchOpen(false);
         if (type === 'workspace') {
@@ -137,8 +91,8 @@ const TopNav = ({ currentWorkspaceId, onChannelSelect }) => {
     };
 
     return (
-        <header className="slack-top-nav" onClick={(e) => e.stopPropagation()}>
-            <div style={{ width: '260px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <header className="slack-top-nav" onClick={(e) => e.stopPropagation()} style={{ position: 'relative' }}>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', minWidth: 0 }}>
                 <Link to="/home" style={{ color: 'white', display: 'flex', alignItems: 'center', textDecoration: 'none', opacity: 0.8, padding: '4px 8px' }} title="Ir al Inicio">
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
                         <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
@@ -146,7 +100,7 @@ const TopNav = ({ currentWorkspaceId, onChannelSelect }) => {
                 </Link>
             </div>
 
-            <div className="slack-search-bar" style={{ position: 'relative' }}>
+            <div className="slack-search-bar" style={{ position: 'relative', flex: 2, maxWidth: '600px', margin: '0 16px' }}>
                 <input 
                     type="text" 
                     className="slack-search-input" 
@@ -212,55 +166,8 @@ const TopNav = ({ currentWorkspaceId, onChannelSelect }) => {
                 )}
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ position: 'relative' }}>
-                    <button 
-                        onClick={(e) => { e.stopPropagation(); toggleNotifications(); }}
-                        style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', position: 'relative', opacity: 0.8 }}
-                        onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-                        onMouseLeave={(e) => e.currentTarget.style.opacity = '0.8'}
-                    >
-                        {/* ICONO DE CAMPANA SIN RELLENO (OUTLINE) */}
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                        </svg>
-                        {notifications.length > 0 && (
-                            <span style={{ 
-                                position: 'absolute', top: '-2px', right: '-2px', 
-                                width: '10px', height: '10px', 
-                                background: hasUnreadNotifications ? '#e01e5a' : 'rgba(255,255,255,0.3)', 
-                                borderRadius: '50%', border: '2px solid var(--accent-color-dark)' 
-                            }} />
-                        )}
-                    </button>
-                    {isNotificationOpen && (
-                        <div style={{ position: 'absolute', top: '40px', right: '-40px', width: '300px', background: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: '8px', boxShadow: '0 4px 12px var(--shadow)', zIndex: 1001, color: 'var(--text-color)' }} onClick={(e) => e.stopPropagation()}>
-                            <div style={{ padding: '12px', borderBottom: '1px solid var(--border-color)', fontWeight: 'bold' }}>Notificaciones</div>
-                            <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-                                {notifications.length === 0 ? (
-                                    <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-soft)' }}>No tienes notificaciones</div>
-                                ) : (
-                                    notifications.map(n => (
-                                        <div key={n._id || n.id} style={{ padding: '12px', borderBottom: '1px solid var(--border-color)', background: n.status === 'pending' ? 'rgba(0,122,90,0.05)' : 'transparent' }}>
-                                            <div style={{ marginBottom: '8px', fontSize: '13px' }}>
-                                                {n.message || (
-                                                    <><strong>{n.sender_id?.username || 'Alguien'}</strong> te invitó a <strong>{n.workspace_id?.title || 'un workspace'}</strong></>
-                                                )}
-                                            </div>
-                                            {n.status === 'pending' && (
-                                                <div style={{ display: 'flex', gap: '8px' }}>
-                                                    <button onClick={() => handleRespondNotification(n._id || n.id, 'accepted')} style={{ padding: '4px 8px', background: '#007a5a', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}>Aceptar</button>
-                                                    <button onClick={() => handleRespondNotification(n._id || n.id, 'rejected')} style={{ padding: '4px 8px', background: '#e01e5a', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}>Rechazar</button>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        </div>
-                    )}
-                </div>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '16px', minWidth: 0 }}>
+                <NotificationDropdown showToast={showToast} />
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', position: 'relative' }}>
                     <div style={{ color: 'white', fontWeight: 'bold', fontSize: '14px' }}>{user?.name || 'Usuario'}</div>

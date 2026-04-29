@@ -89,3 +89,31 @@ export async function inviteToWorkspace(workspace_id, identifier, role = 'user')
     });
     return response.json();
 }
+
+export async function updateMemberRole(workspace_id, user_id, role) {
+    const response = await fetch(`${ENVIRONMENT.API_URL}/api/workspace/${workspace_id}/member/${user_id}/role`, {
+      method: "PUT",
+      credentials: 'include',
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ role })
+    });
+    if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || "Error al actualizar el rol");
+    }
+    return response.json();
+}
+
+export async function removeMember(workspace_id, user_id) {
+    const response = await fetch(`${ENVIRONMENT.API_URL}/api/workspace/${workspace_id}/member/${user_id}`, {
+      method: "DELETE",
+      credentials: 'include'
+    });
+    if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || "Error al eliminar el miembro");
+    }
+    return response.json();
+}

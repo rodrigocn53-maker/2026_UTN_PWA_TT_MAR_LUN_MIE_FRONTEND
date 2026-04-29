@@ -27,3 +27,11 @@ export async function markNotificationsAsRead() {
     });
     return await response.json();
 }
+
+export async function markSingleNotificationAsRead(notification_id) {
+    const response = await fetch(`${ENVIRONMENT.API_URL}/api/notifications/${notification_id}/read`, {
+        method: 'PUT',
+        credentials: 'include'
+    });
+    return await response.json();
+}

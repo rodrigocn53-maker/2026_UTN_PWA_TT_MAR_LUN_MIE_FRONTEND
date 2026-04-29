@@ -6,6 +6,8 @@ import useChannels from '../../hooks/useChannels'
 import useMessages from '../../hooks/useMessages'
 import NewWorkspaceModalScreen from '../NewWorkspaceModalScreen/NewWorkspaceModalScreen'
 import NewChannelModalScreen from '../NewChannelModalScreen/NewChannelModalScreen'
+import EditChannelModalScreen from '../EditChannelModalScreen/EditChannelModalScreen'
+import MembersListModalScreen from '../MembersListModalScreen/MembersListModalScreen'
 import { AuthContext } from '../../Context/AuthContext'
 import { deleteWorkspace, leaveWorkspace, updateWorkspace, inviteToWorkspace } from '../../services/workspaceService'
 import { sendMessage, updateMessage, deleteMessage } from '../../services/messageService'
@@ -14,10 +16,14 @@ import { getNotifications, respondToInvitation, markNotificationsAsRead } from '
 import Avatar from '../../Components/Avatar/Avatar'
 import TopNav from '../../Components/TopNav/TopNav'
 import Toast from '../../Components/Toast/Toast'
+import ENVIRONMENT from '../../config/environment'
 
 const WorkspaceScreen = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isChannelModalOpen, setIsChannelModalOpen] = useState(false)
+    const [isEditChannelModalOpen, setIsEditChannelModalOpen] = useState(false)
+    const [isMembersModalOpen, setIsMembersModalOpen] = useState(false)
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const [activeChannel, setActiveChannel] = useState(null)
     const [messageInput, setMessageInput] = useState('')
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -52,7 +58,7 @@ const WorkspaceScreen = () => {
     };
 
     const { workspace_id } = useParams()
-    const { workspace, members, loading: loadingWorkspace, error: errorWorkspace } = useWorkspace(workspace_id)
+    const { workspace, members, loading: loadingWorkspace, error: errorWorkspace, refetchWorkspace } = useWorkspace(workspace_id)
     const { workspaces, loading: loadingWorkspaces } = useWorkspaces()
     const { channels, refetchChannels } = useChannels(workspace_id)
     const { messages, refetchMessages, addOptimisticMessage, loading: loadingMessages, isSyncing: isMessagesSyncing } = useMessages(workspace_id, activeChannel?.channel_id)
@@ -80,6 +86,8 @@ const WorkspaceScreen = () => {
                 setFilePreview('audio');
             }
         }
+        // Reseteamos el valor del input para que onChange se vuelva a disparar si el usuario elige la misma foto de nuevo
+        e.target.value = '';
     };
 
     const handleInvite = async (e) => {
@@ -167,7 +175,14 @@ const WorkspaceScreen = () => {
     const canEditOrDelete = (msg) => {
         if (!msg.created_at || msg.isOptimistic) return false;
         const diffInMinutes = (new Date() - new Date(msg.created_at)) / 1000 / 60;
-        return diffInMinutes < 2 && String(msg.sender.id) === String(userId);
+        const isMyMessage = String(msg.sender.id) === String(userId);
+        const isAdminOrOwner = userRole === 'admin' || userRole === 'owner';
+        
+        // El admin puede borrar todo, siempre.
+        if (isAdminOrOwner) return true;
+        
+        // Usuario normal: solo si es su mensaje y pasaron menos de 5 min
+        return diffInMinutes < 5 && isMyMessage;
     };
 
     const handleEditWorkspace = async () => {
@@ -318,11 +333,38 @@ const WorkspaceScreen = () => {
                         {workspace && activeChannel ? (
                             <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                                 <div style={{ paddingBottom: '20px', borderBottom: '1px solid var(--border-color)', marginBottom: '20px' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <h1 style={{ fontSize: '24px', margin: '0', color: 'var(--text-color)' }}>
-                                            <span style={{ color: 'var(--text-soft)', marginRight: '4px' }}>#</span> {activeChannel.channel_name}
-                                        </h1>
-                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                            <h1 style={{ fontSize: '24px', margin: '0', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <div>
+                                                    <span style={{ color: 'var(--text-soft)', marginRight: '4px' }}>#</span> {activeChannel.channel_name}
+                                                </div>
+                                                {(userRole === 'owner' || userRole === 'admin') && (
+                                                    <button onClick={() => setIsEditChannelModalOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-soft)', display: 'flex', alignItems: 'center', padding: '4px' }} title="Editar Canal">
+                                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                                    </button>
+                                                )}
+                                            </h1>
+                                            
+                                            <div style={{ display: 'flex', alignItems: 'center', marginTop: '8px', flexWrap: 'wrap', gap: '12px' }}>
+                                                <p style={{ color: 'var(--text-soft)', margin: 0 }}>{activeChannel.channel_description || `Este es el comienzo del canal #${activeChannel.channel_name}.`}</p>
+                                                
+                                                {members && members.length > 0 && (
+                                                    <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', padding: '4px', borderRadius: '4px', transition: 'background-color 0.2s ease' }} className="slack-sidebar-item" onClick={() => setIsMembersModalOpen(true)} title="Ver todos los miembros">
+                                                        <div style={{ width: '1px', height: '16px', background: 'var(--border-color)', margin: '0 8px' }}></div>
+                                                        {members.slice(0, 3).map((m, i) => (
+                                                            <div key={m.user_id} style={{ marginLeft: i > 0 ? '-8px' : '0', border: '2px solid var(--bg-color)', borderRadius: '50%', overflow: 'hidden', position: 'relative', zIndex: 3 - i }}>
+                                                                <Avatar user={{ name: m.user_name || 'U' }} size="24px" borderRadius="50%" />
+                                                            </div>
+                                                        ))}
+                                                        {members.length > 3 && <div style={{ fontSize: '12px', color: 'var(--text-soft)', marginLeft: '4px', fontWeight: 'bold' }}>+{members.length - 3}</div>}
+                                                        <div style={{ fontSize: '12px', color: 'var(--text-soft)', marginLeft: '8px' }}>{members.length} {members.length === 1 ? 'miembro' : 'miembros'}</div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="desktop-actions">
                                             <button onClick={() => setIsInviteModalOpen(true)} style={{ padding: '6px 12px', border: '1px solid #007a5a', color: '#007a5a', borderRadius: '4px', background: 'transparent', cursor: 'pointer' }}>+ Invitar</button>
                                             {userRole === 'owner' ? (
                                                 <>
@@ -333,8 +375,26 @@ const WorkspaceScreen = () => {
                                                 <button onClick={handleLeaveWorkspace} style={{ padding: '6px 12px', border: '1px solid #e01e5a', color: '#e01e5a', borderRadius: '4px', background: 'transparent', cursor: 'pointer' }}>Abandonar</button>
                                             )}
                                         </div>
+                                        
+                                        <div className="mobile-actions">
+                                            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} style={{ background: 'none', border: '1px solid var(--border-color)', borderRadius: '4px', padding: '6px', cursor: 'pointer', color: 'var(--text-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                                            </button>
+                                            {isMobileMenuOpen && (
+                                                <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', background: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: '8px', boxShadow: '0 4px 12px var(--shadow)', zIndex: 100, minWidth: '160px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                                                    <button onClick={() => { setIsInviteModalOpen(true); setIsMobileMenuOpen(false); }} style={{ padding: '12px 16px', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', color: '#007a5a', borderBottom: '1px solid var(--border-color)', fontSize: '15px' }}>+ Invitar Miembros</button>
+                                                    {userRole === 'owner' ? (
+                                                        <>
+                                                            <button onClick={() => { handleEditWorkspace(); setIsMobileMenuOpen(false); }} style={{ padding: '12px 16px', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', color: 'var(--text-color)', borderBottom: '1px solid var(--border-color)', fontSize: '15px' }}>Editar Espacio</button>
+                                                            <button onClick={() => { handleDeleteWorkspace(); setIsMobileMenuOpen(false); }} style={{ padding: '12px 16px', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', color: '#e01e5a', fontSize: '15px' }}>Eliminar Espacio</button>
+                                                        </>
+                                                    ) : (
+                                                        <button onClick={() => { handleLeaveWorkspace(); setIsMobileMenuOpen(false); }} style={{ padding: '12px 16px', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', color: '#e01e5a', fontSize: '15px' }}>Abandonar</button>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                    <p style={{ color: 'var(--text-soft)', marginTop: '8px' }}>{activeChannel.channel_description || `Este es el comienzo del canal #${activeChannel.channel_name}.`}</p>
                                 </div>
 
                                 <div style={{ flex: 1, overflowY: 'auto', marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '16px', padding: '0 4px' }}>
@@ -380,9 +440,9 @@ const WorkspaceScreen = () => {
                                                             {msg.file_url && (
                                                                 <div style={{ marginTop: '8px' }}>
                                                                     {msg.file_type === 'image' ? (
-                                                                        <img src={msg.isOptimistic ? msg.file_url : `http://localhost:8080${msg.file_url}`} alt="Attached" style={{ maxWidth: '300px', borderRadius: '8px', border: '1px solid var(--border-color)' }} />
+                                                                        <img src={msg.file_url.startsWith('http') || msg.file_url.startsWith('data:') || msg.file_url.startsWith('blob:') ? msg.file_url : `${ENVIRONMENT.API_URL}${msg.file_url}`} alt="Attached" style={{ maxWidth: '300px', borderRadius: '8px', border: '1px solid var(--border-color)' }} />
                                                                     ) : msg.file_type === 'audio' ? (
-                                                                        <audio controls src={msg.isOptimistic ? msg.file_url : `http://localhost:8080${msg.file_url}`} style={{ height: '32px' }} />
+                                                                        <audio controls src={msg.file_url.startsWith('http') || msg.file_url.startsWith('data:') || msg.file_url.startsWith('blob:') ? msg.file_url : `${ENVIRONMENT.API_URL}${msg.file_url}`} style={{ height: '32px' }} />
                                                                     ) : null}
                                                                 </div>
                                                             )}
@@ -474,6 +534,24 @@ const WorkspaceScreen = () => {
 
             <NewWorkspaceModalScreen isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
             <NewChannelModalScreen isOpen={isChannelModalOpen} onClose={() => setIsChannelModalOpen(false)} workspace_id={workspace_id} onSuccess={refetchChannels} />
+            <EditChannelModalScreen isOpen={isEditChannelModalOpen} onClose={() => setIsEditChannelModalOpen(false)} workspace_id={workspace_id} channel={activeChannel} onSuccess={(action) => { 
+                if (action === 'delete') {
+                    setActiveChannel(null); 
+                } else if (action === 'update') {
+                    // Force refresh or just let refetchChannels update the list. 
+                    // Active channel name will update next time they click, or we could manually update it here.
+                    setActiveChannel({...activeChannel});
+                }
+                refetchChannels(); 
+            }} />
+            <MembersListModalScreen 
+                isOpen={isMembersModalOpen} 
+                onClose={() => setIsMembersModalOpen(false)} 
+                members={members} 
+                workspace_id={workspace_id}
+                userRole={userRole}
+                onSuccess={() => refetchWorkspace()}
+            />
 
             {isInviteModalOpen && (
                 <div className="modal-overlay">

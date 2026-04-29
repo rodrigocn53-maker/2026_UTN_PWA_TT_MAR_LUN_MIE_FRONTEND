@@ -5,14 +5,18 @@ import { getWorkspaceById } from "../services/workspaceService"
 function useWorkspace(workspace_id) {
     const { sendRequest, response, loading, error } = useRequest()
 
+    const fetchWorkspace = () => {
+        if (workspace_id) {
+            sendRequest({
+                requestCb: getWorkspaceById,
+                params: workspace_id
+            })
+        }
+    }
+
     useEffect(
         () => {
-            if (workspace_id) {
-                sendRequest({
-                    requestCb: getWorkspaceById,
-                    params: workspace_id
-                })
-            }
+            fetchWorkspace()
         },
         [workspace_id]
     )
@@ -22,7 +26,8 @@ function useWorkspace(workspace_id) {
         loading,
         error,
         workspace: response?.data?.workspace,
-        members: response?.data?.members
+        members: response?.data?.members,
+        refetchWorkspace: fetchWorkspace
     }
 }
 
