@@ -55,3 +55,17 @@ export const getContacts = async () => {
         return { ok: false, message: "Error al conectar con el servidor" };
     }
 }
+
+export const updateProfile = async (formData) => {
+    try {
+        const response = await fetch(`${ENVIRONMENT.API_URL}/api/users/profile`, {
+            method: 'PUT',
+            credentials: 'include',
+            body: formData // No ponemos Content-Type porque es FormData y el navegador lo pone solo con el boundary
+        });
+        return await response.json();
+    } catch (error) {
+        console.error("Error updating profile", error);
+        return { ok: false, message: "Error al conectar con el servidor" };
+    }
+}

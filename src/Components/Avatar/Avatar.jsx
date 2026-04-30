@@ -10,17 +10,20 @@ const Avatar = ({ user, size = '32px', borderRadius = '4px', style = {} }) => {
     const name = user?.name || user?.username || 'U';
     const initial = name.charAt(0).toUpperCase();
     
-    // Si en el futuro el usuario tiene avatar_url, lo usaremos aquí
-    if (user?.avatar_url) {
+    const avatarSrc = user?.avatar || user?.avatar_url;
+    if (avatarSrc) {
+        const config = user?.avatar_config || { zoom: 1, position: { x: 50, y: 50 } };
         return (
             <img 
-                src={user.avatar_url} 
+                src={avatarSrc} 
                 alt={name} 
                 style={{ 
                     width: size, 
                     height: size, 
                     borderRadius, 
                     objectFit: 'cover',
+                    transform: `scale(${config.zoom || 1})`,
+                    objectPosition: `${config.position?.x || 50}% ${config.position?.y || 50}%`,
                     ...style 
                 }} 
             />

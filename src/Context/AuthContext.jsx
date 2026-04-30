@@ -58,12 +58,25 @@ function AuthContextProvider ({children}){
         navigate('/login');
     }
 
+    const verifyAuth = async () => {
+        const response = await verifyTokenAPI();
+        if (response.ok) {
+            setIsLogged(true);
+            setUser(response.data.user);
+        } else {
+            setIsLogged(false);
+            setUser(null);
+        }
+        return response;
+    };
+
     const providerValues = {
         isLogged,
         isLoading,
         user,
         manageLogin,
-        manageLogout
+        manageLogout,
+        verifyAuth
     }
 
     return (

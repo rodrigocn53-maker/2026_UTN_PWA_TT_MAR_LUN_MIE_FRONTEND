@@ -7,6 +7,7 @@ import ResetPasswordScreen from './Screens/ResetPasswordScreen/ResetPasswordScre
 import AuthMiddleware from './Middlewares/AuthMiddleware'
 import HomeScreen from './Screens/HomeScreen/HomeScreen'
 import WorkspaceScreen from './Screens/WorkspaceScreen/WorkspaceScreen'
+import DirectMessageScreen from './Screens/DirectMessageScreen/DirectMessageScreen'
 
 
 
@@ -33,6 +34,7 @@ const App = () => {
             element={<HomeScreen/>}
           />
           <Route path="/workspace/:workspace_id" element={<WorkspaceScreen />} />
+          <Route path="/chat/:contact_id" element={<DirectMessageScreen />} />
         </Route>
       </Routes>
       <CookieConsent />

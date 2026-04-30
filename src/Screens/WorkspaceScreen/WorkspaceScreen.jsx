@@ -18,6 +18,8 @@ import Avatar from '../../Components/Avatar/Avatar'
 import TopNav from '../../Components/TopNav/TopNav'
 import Toast from '../../Components/Toast/Toast'
 import SupportModal from '../../Components/SupportModal/SupportModal'
+import Sidebar from '../../Components/Sidebar/Sidebar'
+import { getConversations } from '../../services/dmService'
 import ENVIRONMENT from '../../config/environment'
 
 const WorkspaceScreen = () => {
@@ -30,6 +32,8 @@ const WorkspaceScreen = () => {
     const [messageInput, setMessageInput] = useState('')
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const [isSupportModalOpen, setIsSupportModalOpen] = useState(false)
+    const [sidebarTab, setSidebarTab] = useState('workspaces') // 'workspaces' or 'dms'
+    const [conversations, setConversations] = useState([])
     
     // Workspace & Messages State
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
@@ -40,6 +44,12 @@ const WorkspaceScreen = () => {
     const [loadingContacts, setLoadingContacts] = useState(false)
 
     useEffect(() => {
+        const fetchDMs = async () => {
+            const res = await getConversations()
+            if (res.ok) setConversations(res.data)
+        }
+        fetchDMs()
+
         if (isInviteModalOpen) {
             const fetchContacts = async () => {
                 setLoadingContacts(true)
@@ -263,78 +273,14 @@ const WorkspaceScreen = () => {
             />
 
             <div className="slack-main-body">
-                <div 
-                    className={`sidebar-overlay ${isSidebarOpen ? 'visible' : ''}`} 
-                    onClick={() => setIsSidebarOpen(false)}
-                ></div>
-                <aside className={`slack-sidebar ${isSidebarOpen ? 'open' : ''}`}>
-                    <div className="slack-sidebar-header">
-                        <span>Tus Workspaces</span>
-                        <button 
-                            className="sidebar-toggle-btn" 
-                            style={{ color: 'white', marginLeft: 'auto' }}
-                            onClick={() => setIsSidebarOpen(false)}
-                        >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                        </button>
-                    </div>
-                    <div className="slack-sidebar-content">
-                        <div className="slack-sidebar-group">
-                            <div className="slack-sidebar-group-title">ESPACIOS DE TRABAJO</div>
-                            <ul className="slack-sidebar-list">
-                                {loadingWorkspaces && <li className="slack-sidebar-item">Cargando...</li>}
-                                {!loadingWorkspaces && workspaces && workspaces.map((ws) => {
-                                    const isSelected = String(ws.workspace_id) === String(workspace_id);
-                                    return (
-                                        <React.Fragment key={ws.workspace_id}>
-                                            <li className={`slack-sidebar-item ${isSelected ? 'active' : ''}`}>
-                                                <Link to={'/workspace/' + ws.workspace_id} onClick={() => setIsSidebarOpen(false)} style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', width: '100%' }}>
-                                                    <span className="slack-channel-hash">#</span>
-                                                    <span style={{ marginLeft: '8px', fontWeight: isSelected ? 'bold' : 'normal' }}>{ws.workspace_title}</span>
-                                                </Link>
-                                            </li>
-                                            {isSelected && (
-                                                <div style={{ paddingLeft: '24px', margin: '4px 0 12px 0' }}>
-                                                    <div className="slack-sidebar-group-title" style={{ padding: '0 8px', fontSize: '11px' }}>CANALES</div>
-                                                    <ul className="slack-sidebar-list">
-                                                        {channels && channels.map(channel => (
-                                                            <li 
-                                                                key={channel.channel_id} 
-                                                                className="slack-sidebar-item" 
-                                                                style={{ 
-                                                                    padding: '2px 8px', 
-                                                                    cursor: 'pointer',
-                                                                    backgroundColor: activeChannel?.channel_id === channel.channel_id ? '#1164A3' : 'transparent',
-                                                                    color: activeChannel?.channel_id === channel.channel_id ? 'white' : 'inherit'
-                                                                }}
-                                                                onClick={() => { setActiveChannel(channel); setIsSidebarOpen(false); }}
-                                                            >
-                                                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                                                                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                                        <span className="slack-channel-hash">#</span> 
-                                                                        <span style={{ marginLeft: '8px', fontWeight: isChannelUnread(channel) ? 'bold' : 'normal' }}>{channel.channel_name}</span>
-                                                                    </div>
-                                                                    {isChannelUnread(channel) && <div style={{ width: '8px', height: '8px', background: 'white', borderRadius: '50%', marginRight: '4px' }}></div>}
-                                                                </div>
-                                                            </li>
-                                                        ))}
-                                                        <li className="slack-sidebar-item" style={{ padding: '2px 8px', opacity: 0.7, cursor: 'pointer' }} onClick={() => setIsChannelModalOpen(true)}>
-                                                            <span className="slack-channel-hash">+</span> Añadir canal
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            )}
-                                        </React.Fragment>
-                                    );
-                                })}
-                            </ul>
-                            <li className="slack-sidebar-item" style={{ opacity: 0.7, cursor: 'pointer', marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '12px', listStyle: 'none' }} onClick={() => setIsSupportModalOpen(true)}>
-                                <span style={{ fontSize: '18px' }}>💬</span>
-                                <span style={{ marginLeft: '8px' }}>Soporte</span>
-                            </li>
-                        </div>
-                    </div>
-                </aside>
+                <Sidebar 
+                    isOpen={isSidebarOpen}
+                    onClose={() => setIsSidebarOpen(false)}
+                    workspaces={workspaces}
+                    loadingWorkspaces={loadingWorkspaces}
+                    currentWorkspaceId={workspace_id}
+                    onSupportClick={() => setIsSupportModalOpen(true)}
+                />
 
                 <main className="slack-chat-area">
                     <header className="slack-chat-header" style={{ padding: '0 20px' }}>

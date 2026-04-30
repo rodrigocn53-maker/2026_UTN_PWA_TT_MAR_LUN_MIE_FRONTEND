@@ -5,6 +5,7 @@ import Avatar from '../Avatar/Avatar';
 import { globalSearch } from '../../services/searchService';
 import Toast from '../Toast/Toast';
 import NotificationDropdown from '../NotificationDropdown/NotificationDropdown';
+import EditProfileModal from '../EditProfileModal/EditProfileModal';
 
 /**
  * Componente de Navegación Superior Unificado.
@@ -23,6 +24,7 @@ const TopNav = ({ currentWorkspaceId, onChannelSelect }) => {
 
     // Profile State
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
     // Theme State
     const [themeMode, setThemeMode] = useState(localStorage.getItem('theme') || 'light');
@@ -187,6 +189,15 @@ const TopNav = ({ currentWorkspaceId, onChannelSelect }) => {
                                     </div>
                                 </div>
                             </div>
+                            <button 
+                                onClick={() => { setIsEditProfileOpen(true); setIsProfileMenuOpen(false); }} 
+                                style={{ width: '100%', padding: '8px', background: 'var(--bg-soft)', border: '1px solid var(--border-color)', borderRadius: '4px', color: 'var(--text-color)', cursor: 'pointer', fontWeight: 'bold', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                            >
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                </svg>
+                                Editar Perfil
+                            </button>
                             <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: '12px 0' }} />
                             <div style={{ marginBottom: '12px' }}>
                                 <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-soft)', marginBottom: '8px', textTransform: 'uppercase' }}>Apariencia</div>
@@ -206,6 +217,11 @@ const TopNav = ({ currentWorkspaceId, onChannelSelect }) => {
                 </div>
             </div>
             {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+            <EditProfileModal 
+                isOpen={isEditProfileOpen} 
+                onClose={() => setIsEditProfileOpen(false)} 
+                onUpdateSuccess={(msg) => showToast(msg)}
+            />
         </header>
     );
 };

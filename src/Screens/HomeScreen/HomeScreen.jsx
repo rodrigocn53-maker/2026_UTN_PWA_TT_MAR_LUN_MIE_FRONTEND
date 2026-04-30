@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import useWorkspaces from '../../hooks/useWorkspaces'
 import { AuthContext } from '../../Context/AuthContext'
 import NewWorkspaceModalScreen from '../NewWorkspaceModalScreen/NewWorkspaceModalScreen'
@@ -9,13 +9,18 @@ import { inviteToWorkspace } from '../../services/workspaceService'
 import Avatar from '../../Components/Avatar/Avatar'
 import Toast from '../../Components/Toast/Toast'
 import SupportModal from '../../Components/SupportModal/SupportModal'
+import Sidebar from '../../Components/Sidebar/Sidebar'
+import { getConversations } from '../../services/dmService'
 
 const HomeScreen = () => {
+    const navigate = useNavigate()
     const [isModalOpen, setIsModalOpen] = useState(false)
     const { workspaces, loading: loadingWorkspaces } = useWorkspaces()
     const { user: currentUser } = useContext(AuthContext)
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const [activeMenuId, setActiveMenuId] = useState(null)
+    const [sidebarTab, setSidebarTab] = useState('workspaces') // 'workspaces' or 'dms'
+    const [conversations, setConversations] = useState([])
     
     const [users, setUsers] = useState([])
     const [loadingUsers, setLoadingUsers] = useState(true)
@@ -36,16 +41,19 @@ const HomeScreen = () => {
 
     useEffect(() => {
         const fetchUsersAndContacts = async () => {
-            const [resUsers, resContacts] = await Promise.all([
+            const [resUsers, resContacts, resDMs] = await Promise.all([
                 getAllUsers(),
-                getContacts()
+                getContacts(),
+                getConversations()
             ])
             if (resUsers.ok) {
                 setUsers(resUsers.data)
             }
             if (resContacts.ok) {
-                // Ahora resContacts.data tiene { accepted: [], pending: [] }
                 setContacts(resContacts.data)
+            }
+            if (resDMs.ok) {
+                setConversations(resDMs.data)
             }
             setLoadingUsers(false)
         }
@@ -231,6 +239,23 @@ const HomeScreen = () => {
                             </button>
                             {isContact && (
                                 <button 
+                                    onClick={() => navigate(`/chat/${u._id}`)}
+                                    style={{ 
+                                        padding: '6px 12px', 
+                                        fontSize: '12px', 
+                                        borderRadius: '4px', 
+                                        border: '1px solid #1164A3', 
+                                        background: 'transparent', 
+                                        color: '#1164A3', 
+                                        cursor: 'pointer',
+                                        fontWeight: 'bold'
+                                    }}
+                                >
+                                    Chat
+                                </button>
+                            )}
+                            {isContact && (
+                                <button 
                                     onClick={() => handleDeleteContact(u._id)}
                                     style={{ 
                                         padding: '6px 12px', 
@@ -259,46 +284,13 @@ const HomeScreen = () => {
             <TopNav />
 
             <div className="slack-main-body">
-                <div 
-                    className={`sidebar-overlay ${isSidebarOpen ? 'visible' : ''}`} 
-                    onClick={() => setIsSidebarOpen(false)}
-                ></div>
-                <aside className={`slack-sidebar ${isSidebarOpen ? 'open' : ''}`}>
-                    <div className="slack-sidebar-header">
-                        <span>Tus Workspaces</span>
-                        <button 
-                            className="sidebar-toggle-btn" 
-                            style={{ color: 'white', marginLeft: 'auto' }}
-                            onClick={() => setIsSidebarOpen(false)}
-                        >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                        </button>
-                    </div>
-                    <div className="slack-sidebar-content">
-                        <div className="slack-sidebar-group">
-                            <div className="slack-sidebar-group-title">ESPACIOS DE TRABAJO</div>
-                            <ul className="slack-sidebar-list">
-                                {loadingWorkspaces && <li className="slack-sidebar-item">Cargando...</li>}
-                                {!loadingWorkspaces && workspaces?.map((ws) => (
-                                    <li key={ws.workspace_id} className="slack-sidebar-item">
-                                        <Link to={'/workspace/' + ws.workspace_id} style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', width: '100%' }}>
-                                            <span style={{ opacity: 0.7 }}>#</span>
-                                            <span style={{ marginLeft: '8px' }}>{ws.workspace_title}</span>
-                                        </Link>
-                                    </li>
-                                ))}
-                                <li className="slack-sidebar-item" style={{ opacity: 0.7, cursor: 'pointer' }} onClick={() => setIsModalOpen(true)}>
-                                    <span>+</span>
-                                    <span style={{ marginLeft: '8px' }}>Crear workspace</span>
-                                </li>
-                                <li className="slack-sidebar-item" style={{ opacity: 0.7, cursor: 'pointer', marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '12px' }} onClick={() => setIsSupportModalOpen(true)}>
-                                    <span style={{ fontSize: '18px' }}>💬</span>
-                                    <span style={{ marginLeft: '8px' }}>Soporte</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </aside>
+                <Sidebar 
+                    isOpen={isSidebarOpen}
+                    onClose={() => setIsSidebarOpen(false)}
+                    workspaces={workspaces}
+                    loadingWorkspaces={loadingWorkspaces}
+                    onSupportClick={() => setIsSupportModalOpen(true)}
+                />
 
                 <main className="slack-chat-area">
                     <header className="slack-chat-header" style={{ padding: '0 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
