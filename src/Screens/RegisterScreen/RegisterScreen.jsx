@@ -143,6 +143,9 @@ const RegisterScreen = () => {
                             value={formState[REGISTER_FORM_FIELDS.PASSWORD]} 
                             placeholder="Crea una contraseña"
                         />
+                        <p style={{ fontSize: '12px', color: 'var(--text-soft)', marginTop: '6px' }}>
+                            Mínimo 8-16 caracteres, incluyendo al menos un carácter especial (ej: @, #, $).
+                        </p>
                         {passwordError && <div style={{ color: '#e01e5a', fontSize: '12px', marginTop: '6px', fontWeight: 'bold' }}>{passwordError}</div>}
                     </div>
                     <button className="auth-btn" type="submit" disabled={loading}>

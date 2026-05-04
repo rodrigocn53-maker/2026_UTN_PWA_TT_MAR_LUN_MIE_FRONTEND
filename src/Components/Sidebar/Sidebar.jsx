@@ -10,6 +10,10 @@ const Sidebar = ({
     loadingWorkspaces, 
     currentWorkspaceId,
     onSupportClick,
+    channels = [],
+    activeChannelId,
+    onChannelSelect,
+    onCreateChannel,
     activeTab = 'workspaces' 
 }) => {
     const [sidebarTab, setSidebarTab] = useState(activeTab)
@@ -63,18 +67,55 @@ const Sidebar = ({
 
                     {sidebarTab === 'workspaces' ? (
                         <div className="slack-sidebar-group">
+                            {/* Canales del Workspace Actual */}
+                            {currentWorkspaceId && (
+                                <div style={{ marginBottom: '24px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 12px', marginBottom: '8px' }}>
+                                        <div className="slack-sidebar-group-title" style={{ margin: 0 }}>CANALES</div>
+                                        <button 
+                                            onClick={onCreateChannel}
+                                            style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', opacity: 0.7, padding: '4px', display: 'flex' }}
+                                            title="Crear canal"
+                                        >
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                        </button>
+                                    </div>
+                                    <ul className="slack-sidebar-list">
+                                        {channels?.length > 0 ? (
+                                            channels.map((ch) => (
+                                                <li 
+                                                    key={ch.channel_id} 
+                                                    className={`slack-sidebar-item ${String(ch.channel_id) === String(activeChannelId) ? 'active' : ''}`}
+                                                    onClick={() => {
+                                                        if (onChannelSelect) onChannelSelect(ch);
+                                                        onClose();
+                                                    }}
+                                                >
+                                                    <span style={{ opacity: 0.7 }}>#</span>
+                                                    <span style={{ marginLeft: '8px' }}>{ch.channel_name}</span>
+                                                </li>
+                                            ))
+                                        ) : (
+                                            <li className="slack-sidebar-item" style={{ opacity: 0.5, fontSize: '13px' }}>No hay canales</li>
+                                        )}
+                                    </ul>
+                                </div>
+                            )}
+
                             <div className="slack-sidebar-group-title">ESPACIOS DE TRABAJO</div>
                             <ul className="slack-sidebar-list">
                                 {loadingWorkspaces && <li className="slack-sidebar-item">Cargando...</li>}
                                 {!loadingWorkspaces && workspaces?.map((ws) => (
                                     <li key={ws.workspace_id} className={`slack-sidebar-item ${String(ws.workspace_id) === String(currentWorkspaceId) ? 'active' : ''}`}>
                                         <Link to={'/workspace/' + ws.workspace_id} onClick={onClose} style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', width: '100%' }}>
-                                            <span style={{ opacity: 0.7 }}>#</span>
-                                            <span style={{ marginLeft: '8px', fontWeight: String(ws.workspace_id) === String(currentWorkspaceId) ? 'bold' : 'normal' }}>{ws.workspace_title}</span>
+                                            <div style={{ width: '20px', height: '20px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold' }}>
+                                                {ws.workspace_title?.charAt(0).toUpperCase()}
+                                            </div>
+                                            <span style={{ marginLeft: '8px', fontWeight: String(ws.workspace_id) === String(currentWorkspaceId) ? 'bold' : 'normal', fontSize: '14px' }}>{ws.workspace_title}</span>
                                         </Link>
                                     </li>
                                 ))}
-                                <li className="slack-sidebar-item" style={{ opacity: 0.7, cursor: 'pointer' }} onClick={() => navigate('/home')}>
+                                <li className="slack-sidebar-item" style={{ opacity: 0.7, cursor: 'pointer', marginTop: '8px' }} onClick={() => navigate('/home')}>
                                     <span>+</span>
                                     <span style={{ marginLeft: '8px' }}>Explorar / Crear</span>
                                 </li>

@@ -152,17 +152,41 @@ const DirectMessageScreen = () => {
 
                         <form onSubmit={handleSendMessage} style={{ padding: '20px', borderTop: '1px solid var(--border-color)' }}>
                             <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '12px', background: 'var(--bg-color)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <input 
-                                    type="text" 
+                                <textarea 
                                     value={messageInput}
-                                    onChange={(e) => setMessageInput(e.target.value)}
+                                    onChange={(e) => {
+                                        setMessageInput(e.target.value);
+                                        // Auto-resize
+                                        e.target.style.height = 'auto';
+                                        e.target.style.height = `${Math.min(e.target.scrollHeight, 200)}px`;
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && !e.shiftKey) {
+                                            e.preventDefault();
+                                            handleSendMessage(e);
+                                            e.target.style.height = 'auto';
+                                        }
+                                    }}
                                     placeholder={`Mensaje para ${contact?.name}`}
-                                    style={{ flex: 1, border: 'none', outline: 'none', background: 'transparent', color: 'var(--text-color)', fontSize: '15px' }}
+                                    rows="1"
+                                    style={{ 
+                                        flex: 1, 
+                                        border: 'none', 
+                                        outline: 'none', 
+                                        background: 'transparent', 
+                                        color: 'var(--text-color)', 
+                                        fontSize: '15px',
+                                        resize: 'none',
+                                        fontFamily: 'inherit',
+                                        padding: '0',
+                                        lineHeight: '1.5',
+                                        overflowY: 'auto'
+                                    }}
                                 />
                                 <button 
                                     type="submit" 
                                     disabled={!messageInput.trim()}
-                                    style={{ background: messageInput.trim() ? 'var(--accent-color)' : '#ddd', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+                                    style={{ background: messageInput.trim() ? 'var(--accent-color)' : '#ddd', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', alignSelf: 'flex-end' }}
                                 >
                                     Enviar
                                 </button>

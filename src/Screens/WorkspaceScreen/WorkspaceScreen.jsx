@@ -7,6 +7,7 @@ import useMessages from '../../hooks/useMessages'
 import NewWorkspaceModalScreen from '../NewWorkspaceModalScreen/NewWorkspaceModalScreen'
 import NewChannelModalScreen from '../NewChannelModalScreen/NewChannelModalScreen'
 import EditChannelModalScreen from '../EditChannelModalScreen/EditChannelModalScreen'
+import EditWorkspaceModalScreen from '../EditWorkspaceModalScreen/EditWorkspaceModalScreen'
 import MembersListModalScreen from '../MembersListModalScreen/MembersListModalScreen'
 import { AuthContext } from '../../Context/AuthContext'
 import { deleteWorkspace, leaveWorkspace, updateWorkspace, inviteToWorkspace } from '../../services/workspaceService'
@@ -26,6 +27,7 @@ const WorkspaceScreen = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isChannelModalOpen, setIsChannelModalOpen] = useState(false)
     const [isEditChannelModalOpen, setIsEditChannelModalOpen] = useState(false)
+    const [isEditWorkspaceModalOpen, setIsEditWorkspaceModalOpen] = useState(false)
     const [isMembersModalOpen, setIsMembersModalOpen] = useState(false)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const [activeChannel, setActiveChannel] = useState(null)
@@ -214,17 +216,8 @@ const WorkspaceScreen = () => {
         return diffInMinutes < 5 && isMyMessage;
     };
 
-    const handleEditWorkspace = async () => {
-        const newTitle = window.prompt("Ingresa el nuevo título para el Workspace:", workspace?.title || workspace?.workspace_title);
-        if (newTitle && newTitle.trim() !== "") {
-            try {
-                await updateWorkspace(workspace_id, newTitle, workspace?.description, workspace?.url_image);
-                showToast("Espacio de trabajo actualizado");
-                setTimeout(() => window.location.reload(), 1000);
-            } catch (err) {
-                showToast("Error al actualizar el workspace: " + err.message, 'error');
-            }
-        }
+    const handleEditWorkspace = () => {
+        setIsEditWorkspaceModalOpen(true);
     };
 
     const handleDeleteWorkspace = async () => {
@@ -280,6 +273,10 @@ const WorkspaceScreen = () => {
                     loadingWorkspaces={loadingWorkspaces}
                     currentWorkspaceId={workspace_id}
                     onSupportClick={() => setIsSupportModalOpen(true)}
+                    channels={channels}
+                    activeChannelId={activeChannel?.channel_id}
+                    onChannelSelect={(ch) => setActiveChannel(ch)}
+                    onCreateChannel={() => setIsChannelModalOpen(true)}
                 />
 
                 <main className="slack-chat-area">
@@ -466,13 +463,38 @@ const WorkspaceScreen = () => {
                                         onClick={() => document.getElementById('chat-input').focus()}
                                         style={{ border: '1px solid var(--border-color)', borderRadius: filePreview ? '0 0 8px 8px' : '8px', padding: '12px', background: 'var(--bg-color)', cursor: 'text' }}
                                     >
-                                        <input
+                                        <textarea
                                             id="chat-input"
-                                            type="text"
                                             value={messageInput}
-                                            onChange={(e) => setMessageInput(e.target.value)}
+                                            onChange={(e) => {
+                                                setMessageInput(e.target.value);
+                                                // Auto-resize
+                                                e.target.style.height = 'auto';
+                                                e.target.style.height = `${Math.min(e.target.scrollHeight, 200)}px`;
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' && !e.shiftKey) {
+                                                    e.preventDefault();
+                                                    handleSendMessage(e);
+                                                    e.target.style.height = 'auto';
+                                                }
+                                            }}
                                             placeholder={`Enviar mensaje a #${activeChannel?.channel_name}`}
-                                            style={{ width: '100%', border: 'none', outline: 'none', fontSize: '15px', background: 'transparent', color: 'var(--text-color)' }}
+                                            rows="1"
+                                            style={{ 
+                                                width: '100%', 
+                                                border: 'none', 
+                                                outline: 'none', 
+                                                fontSize: '15px', 
+                                                background: 'transparent', 
+                                                color: 'var(--text-color)',
+                                                resize: 'none',
+                                                fontFamily: 'inherit',
+                                                padding: '0',
+                                                lineHeight: '1.5',
+                                                overflowY: 'auto',
+                                                display: 'block'
+                                            }}
                                         />
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
                                             <div style={{ display: 'flex', gap: '12px' }}>
@@ -502,6 +524,15 @@ const WorkspaceScreen = () => {
             </div>
 
             <NewWorkspaceModalScreen isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+            <EditWorkspaceModalScreen 
+                isOpen={isEditWorkspaceModalOpen} 
+                onClose={() => setIsEditWorkspaceModalOpen(false)} 
+                workspace={workspace} 
+                onSuccess={() => {
+                    showToast("Workspace actualizado");
+                    refetchWorkspace();
+                }} 
+            />
             <SupportModal isOpen={isSupportModalOpen} onClose={() => setIsSupportModalOpen(false)} />
             <NewChannelModalScreen isOpen={isChannelModalOpen} onClose={() => setIsChannelModalOpen(false)} workspace_id={workspace_id} onSuccess={refetchChannels} />
             <EditChannelModalScreen isOpen={isEditChannelModalOpen} onClose={() => setIsEditChannelModalOpen(false)} workspace_id={workspace_id} channel={activeChannel} onSuccess={(action) => { 
