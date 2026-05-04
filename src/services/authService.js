@@ -96,7 +96,7 @@ export const verifyTokenAPI = async () => {
         });
         const json = await response.json();
         return json;
-    } catch (e) {
+    } catch (error) {
         return { ok: false };
     }
 }
@@ -107,7 +107,7 @@ export const logoutAPI = async () => {
             method: 'POST',
             credentials: 'include'
         });
-    } catch (e) {
-        console.error("Error logging out", e);
+    } catch (error) {
+        console.error("Error logging out", error);
     }
 }
