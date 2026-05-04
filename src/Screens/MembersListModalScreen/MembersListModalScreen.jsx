@@ -2,10 +2,12 @@ import Avatar from "../../Components/Avatar/Avatar";
 import { updateMemberRole, removeMember } from "../../services/workspaceService";
 import useRequest from "../../hooks/useRequest";
 import { useState } from "react";
+import ConfirmModal from "../../Components/ConfirmModal/ConfirmModal";
 
 export default function MembersListModalScreen({ isOpen, onClose, members, workspace_id, userRole, onSuccess }) {
     const { sendRequest, loading } = useRequest();
     const [actionLoading, setActionLoading] = useState(null);
+    const [confirmConfig, setConfirmConfig] = useState({ isOpen: false, type: '', userId: null, role: null });
 
     if (!isOpen) return null;
 
@@ -17,30 +19,38 @@ export default function MembersListModalScreen({ isOpen, onClose, members, works
     };
 
     const handlePromote = (user_id) => {
-        if (!window.confirm("¿Seguro que quieres hacer a este usuario Administrador?")) return;
-        setActionLoading(user_id);
-        sendRequest({
-            requestCb: async () => await updateMemberRole(workspace_id, user_id, 'admin'),
-            onSuccess: () => {
-                onSuccess(); 
-                setActionLoading(null);
-            },
-            onError: () => setActionLoading(null)
-        });
+        setConfirmConfig({ isOpen: true, type: 'promote', userId: user_id });
     };
 
     const handleRemove = (user_id, role) => {
         if (role === 'owner') return;
-        if (!window.confirm("¿Seguro que quieres eliminar a este usuario del espacio?")) return;
-        setActionLoading(user_id);
-        sendRequest({
-            requestCb: async () => await removeMember(workspace_id, user_id),
-            onSuccess: () => {
-                onSuccess();
-                setActionLoading(null);
-            },
-            onError: () => setActionLoading(null)
-        });
+        setConfirmConfig({ isOpen: true, type: 'remove', userId: user_id, role });
+    };
+
+    const onConfirmAction = () => {
+        const { type, userId, role } = confirmConfig;
+        setConfirmConfig({ ...confirmConfig, isOpen: false });
+        setActionLoading(userId);
+
+        if (type === 'promote') {
+            sendRequest({
+                requestCb: async () => await updateMemberRole(workspace_id, userId, 'admin'),
+                onSuccess: () => {
+                    onSuccess(); 
+                    setActionLoading(null);
+                },
+                onError: () => setActionLoading(null)
+            });
+        } else if (type === 'remove') {
+            sendRequest({
+                requestCb: async () => await removeMember(workspace_id, userId),
+                onSuccess: () => {
+                    onSuccess();
+                    setActionLoading(null);
+                },
+                onError: () => setActionLoading(null)
+            });
+        }
     };
 
     const canManageMembers = userRole === 'owner' || userRole === 'admin';
@@ -118,6 +128,17 @@ export default function MembersListModalScreen({ isOpen, onClose, members, works
                     )}
                 </div>
             </div>
+            <ConfirmModal 
+                isOpen={confirmConfig.isOpen}
+                onClose={() => setConfirmConfig({ ...confirmConfig, isOpen: false })}
+                onConfirm={onConfirmAction}
+                title={confirmConfig.type === 'promote' ? 'Promover a Administrador' : 'Expulsar Miembro'}
+                message={confirmConfig.type === 'promote' 
+                    ? '¿Seguro que quieres hacer a este usuario Administrador? Tendrá permisos para gestionar el espacio.' 
+                    : '¿Seguro que quieres eliminar a este usuario del espacio? Ya no podrá acceder a los canales.'}
+                confirmText={confirmConfig.type === 'promote' ? 'Promover' : 'Expulsar'}
+                type={confirmConfig.type === 'promote' ? 'primary' : 'danger'}
+            />
         </div>
     );
 }

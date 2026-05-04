@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import useForm from "../../hooks/useForm";
 import useRequest from "../../hooks/useRequest";
 import { updateChannel, deleteChannel } from "../../services/channelService";
+import ConfirmModal from "../../Components/ConfirmModal/ConfirmModal";
 
 export default function EditChannelModalScreen({ isOpen, onClose, workspace_id, channel, onSuccess }) {
     const { sendRequest, error, loading, response } = useRequest();
     const { sendRequest: sendDeleteReq, error: deleteError, loading: deleteLoading } = useRequest();
     const [isSuccess, setIsSuccess] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
 
     const EDIT_CHANNEL_FORM_FIELD = {
         NAME: "name",
@@ -43,7 +45,11 @@ export default function EditChannelModalScreen({ isOpen, onClose, workspace_id, 
     };
 
     const handleDelete = () => {
-        if (!window.confirm("¿Estás seguro de que quieres eliminar este canal? Todos los mensajes se perderán. Esta acción es irreversible.")) return;
+        setIsConfirmDeleteOpen(true);
+    };
+
+    const confirmDelete = () => {
+        setIsConfirmDeleteOpen(false);
         setIsDeleting(true);
         sendDeleteReq({
             requestCb: async () => {
@@ -172,6 +178,14 @@ export default function EditChannelModalScreen({ isOpen, onClose, workspace_id, 
                     </>
                 )}
             </div>
+            <ConfirmModal 
+                isOpen={isConfirmDeleteOpen} 
+                onClose={() => setIsConfirmDeleteOpen(false)} 
+                onConfirm={confirmDelete}
+                title="Eliminar Canal"
+                message="¿Estás seguro de que quieres eliminar este canal? Todos los mensajes se perderán. Esta acción es irreversible."
+                confirmText="Eliminar"
+            />
         </div>
     );
 }

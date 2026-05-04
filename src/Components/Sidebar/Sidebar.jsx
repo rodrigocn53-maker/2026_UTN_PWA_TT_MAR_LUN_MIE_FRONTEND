@@ -148,10 +148,23 @@ const Sidebar = ({
                         </div>
                     )}
 
-                    <div className="slack-sidebar-group" style={{ marginTop: 'auto' }}>
-                        <li className="slack-sidebar-item" style={{ opacity: 0.7, cursor: 'pointer', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '12px', listStyle: 'none' }} onClick={onSupportClick}>
-                            <span style={{ fontSize: '18px' }}>💬</span>
-                            <span style={{ marginLeft: '8px' }}>Soporte</span>
+                    <div style={{ marginTop: 'auto', padding: '16px' }}>
+                        <li 
+                            className="slack-sidebar-item" 
+                            style={{ 
+                                opacity: 0.8, 
+                                cursor: 'pointer', 
+                                listStyle: 'none', 
+                                width: '100%', 
+                                justifyContent: 'center',
+                                margin: 0,
+                                background: 'rgba(255,255,255,0.05)',
+                                border: '1px solid rgba(255,255,255,0.1)'
+                            }} 
+                            onClick={onSupportClick}
+                        >
+                            <span style={{ fontSize: '16px' }}>💬</span>
+                            <span style={{ marginLeft: '8px', fontSize: '14px', fontWeight: 'bold' }}>Soporte Técnico</span>
                         </li>
                     </div>
                 </div>

@@ -9,6 +9,7 @@ import NewChannelModalScreen from '../NewChannelModalScreen/NewChannelModalScree
 import EditChannelModalScreen from '../EditChannelModalScreen/EditChannelModalScreen'
 import EditWorkspaceModalScreen from '../EditWorkspaceModalScreen/EditWorkspaceModalScreen'
 import MembersListModalScreen from '../MembersListModalScreen/MembersListModalScreen'
+import ConfirmModal from '../../Components/ConfirmModal/ConfirmModal'
 import { AuthContext } from '../../Context/AuthContext'
 import { deleteWorkspace, leaveWorkspace, updateWorkspace, inviteToWorkspace } from '../../services/workspaceService'
 import { sendMessage, updateMessage, deleteMessage } from '../../services/messageService'
@@ -29,6 +30,10 @@ const WorkspaceScreen = () => {
     const [isEditChannelModalOpen, setIsEditChannelModalOpen] = useState(false)
     const [isEditWorkspaceModalOpen, setIsEditWorkspaceModalOpen] = useState(false)
     const [isMembersModalOpen, setIsMembersModalOpen] = useState(false)
+    const [isDeleteWorkspaceConfirmOpen, setIsDeleteWorkspaceConfirmOpen] = useState(false)
+    const [isLeaveWorkspaceConfirmOpen, setIsLeaveWorkspaceConfirmOpen] = useState(false)
+    const [isDeleteMessageConfirmOpen, setIsDeleteMessageConfirmOpen] = useState(false)
+    const [messageToDelete, setMessageToDelete] = useState(null)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const [activeChannel, setActiveChannel] = useState(null)
     const [messageInput, setMessageInput] = useState('')
@@ -192,14 +197,22 @@ const WorkspaceScreen = () => {
         }
     };
 
-    const handleDeleteMessage = async (message_id) => {
-        if (!window.confirm("¿Estás seguro de que quieres eliminar este mensaje?")) return;
+    const handleDeleteMessage = (message_id) => {
+        setMessageToDelete(message_id);
+        setIsDeleteMessageConfirmOpen(true);
+    };
+
+    const confirmDeleteMessage = async () => {
+        if (!messageToDelete) return;
         try {
-            await deleteMessage(workspace_id, activeChannel.channel_id, message_id);
+            await deleteMessage(workspace_id, activeChannel.channel_id, messageToDelete);
             refetchMessages();
             showToast("Mensaje eliminado");
         } catch (err) {
             showToast(err.message, 'error');
+        } finally {
+            setIsDeleteMessageConfirmOpen(false);
+            setMessageToDelete(null);
         }
     };
 
@@ -220,27 +233,35 @@ const WorkspaceScreen = () => {
         setIsEditWorkspaceModalOpen(true);
     };
 
-    const handleDeleteWorkspace = async () => {
-        if (window.confirm("¿Estás seguro de que deseas ELIMINAR este Workspace para todos los miembros? Esta acción es irreversible.")) {
-            try {
-                await deleteWorkspace(workspace_id);
-                showToast("Espacio de trabajo eliminado");
-                setTimeout(() => window.location.href = '/home', 1000);
-            } catch (err) {
-                showToast("Error al eliminar el workspace: " + err.message, 'error');
-            }
+    const handleDeleteWorkspace = () => {
+        setIsDeleteWorkspaceConfirmOpen(true);
+    };
+
+    const confirmDeleteWorkspace = async () => {
+        try {
+            await deleteWorkspace(workspace_id);
+            showToast("Espacio de trabajo eliminado");
+            setTimeout(() => window.location.href = '/home', 1000);
+        } catch (err) {
+            showToast("Error al eliminar el workspace: " + err.message, 'error');
+        } finally {
+            setIsDeleteWorkspaceConfirmOpen(false);
         }
     };
 
-    const handleLeaveWorkspace = async () => {
-        if (window.confirm("¿Estás seguro de que deseas ABANDONAR este Workspace? Ya no tendrás acceso a él.")) {
-            try {
-                await leaveWorkspace(workspace_id);
-                showToast("Has abandonado el espacio de trabajo");
-                setTimeout(() => window.location.href = '/home', 1000);
-            } catch (err) {
-                showToast("Error al abandonar el workspace: " + err.message, 'error');
-            }
+    const handleLeaveWorkspace = () => {
+        setIsLeaveWorkspaceConfirmOpen(true);
+    };
+
+    const confirmLeaveWorkspace = async () => {
+        try {
+            await leaveWorkspace(workspace_id);
+            showToast("Has abandonado el espacio de trabajo");
+            setTimeout(() => window.location.href = '/home', 1000);
+        } catch (err) {
+            showToast("Error al abandonar el workspace: " + err.message, 'error');
+        } finally {
+            setIsLeaveWorkspaceConfirmOpen(false);
         }
     };
 
@@ -532,6 +553,30 @@ const WorkspaceScreen = () => {
                     showToast("Workspace actualizado");
                     refetchWorkspace();
                 }} 
+            />
+            <ConfirmModal 
+                isOpen={isDeleteWorkspaceConfirmOpen} 
+                onClose={() => setIsDeleteWorkspaceConfirmOpen(false)} 
+                onConfirm={confirmDeleteWorkspace}
+                title="Eliminar Workspace"
+                message="¿Estás seguro de que deseas ELIMINAR este Workspace para todos los miembros? Esta acción es irreversible."
+                confirmText="Eliminar"
+            />
+            <ConfirmModal 
+                isOpen={isLeaveWorkspaceConfirmOpen} 
+                onClose={() => setIsLeaveWorkspaceConfirmOpen(false)} 
+                onConfirm={confirmLeaveWorkspace}
+                title="Abandonar Workspace"
+                message="¿Estás seguro de que deseas ABANDONAR este Workspace? Ya no tendrás acceso a él."
+                confirmText="Abandonar"
+            />
+            <ConfirmModal 
+                isOpen={isDeleteMessageConfirmOpen} 
+                onClose={() => setIsDeleteMessageConfirmOpen(false)} 
+                onConfirm={confirmDeleteMessage}
+                title="Eliminar mensaje"
+                message="¿Estás seguro de que quieres eliminar este mensaje?"
+                confirmText="Eliminar"
             />
             <SupportModal isOpen={isSupportModalOpen} onClose={() => setIsSupportModalOpen(false)} />
             <NewChannelModalScreen isOpen={isChannelModalOpen} onClose={() => setIsChannelModalOpen(false)} workspace_id={workspace_id} onSuccess={refetchChannels} />
