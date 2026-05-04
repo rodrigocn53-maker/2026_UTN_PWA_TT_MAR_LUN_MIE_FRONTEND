@@ -6,8 +6,8 @@ const NotificationDropdown = ({ showToast }) => {
     const [notifications, setNotifications] = useState([]);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
-    const hasUnreadNotifications = notifications.some(n => 
-        !n.read || ((!n.type || n.type === 'workspace_invitation') && n.status === 'pending')
+    const hasUnreadNotifications = notifications.some(notification => 
+        !notification.read || ((!notification.type || notification.type === 'workspace_invitation') && notification.status === 'pending')
     );
 
     const fetchNotifications = async () => {
@@ -100,10 +100,10 @@ const NotificationDropdown = ({ showToast }) => {
                         {notifications.length === 0 ? (
                             <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-soft)' }}>No tienes notificaciones</div>
                         ) : (
-                            notifications.map(n => (
+                            notifications.map(notification => (
                                 <NotificationItem 
-                                    key={n._id || n.id} 
-                                    notification={n} 
+                                    key={notification._id || notification.id} 
+                                    notification={notification} 
                                     onRespond={handleRespondNotification} 
                                     onCloseMenu={() => setIsNotificationOpen(false)} 
                                     onRead={handleMarkSingleAsRead}

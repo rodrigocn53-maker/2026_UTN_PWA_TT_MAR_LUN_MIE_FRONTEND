@@ -85,7 +85,7 @@ const HomeScreen = () => {
         if (res.ok) {
             setContacts(prev => ({
                 ...prev,
-                accepted: prev.accepted.filter(c => c._id !== contactId)
+                accepted: prev.accepted.filter(contact => contact._id !== contactId)
             }))
             showToast("Contacto eliminado")
         } else {
@@ -118,25 +118,25 @@ const HomeScreen = () => {
         }
     }
 
-    const filteredContacts = (contacts.accepted || []).filter(c => 
-        c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        c.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredContacts = (contacts.accepted || []).filter(contact => 
+        contact.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        contact.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        contact.email?.toLowerCase().includes(searchTerm.toLowerCase())
     )
 
-    const filteredOthers = users.filter(u => 
-        (u.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        u.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.email?.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        !contacts.accepted?.some(c => c._id === u._id) && 
-        u._id !== currentUser?._id
+    const filteredOthers = users.filter(user => 
+        (user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email?.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        !contacts.accepted?.some(contact => contact._id === user._id) && 
+        user._id !== currentUser?._id
     )
 
-    const renderUserItem = (u, isContact) => {
-        const isPending = contacts.pending?.some(p => p._id === u._id);
+    const renderUserItem = (user, isContact) => {
+        const isPending = contacts.pending?.some(p => p._id === user._id);
         
         return (
-            <div key={u._id} style={{ 
+            <div key={user._id} style={{ 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'space-between', 
@@ -144,17 +144,17 @@ const HomeScreen = () => {
                 borderRadius: '8px',
                 transition: 'background 0.2s',
                 marginBottom: '4px',
-                border: invitingUserId === u._id ? '1px solid var(--accent-color)' : '1px solid transparent'
+                border: invitingUserId === user._id ? '1px solid var(--accent-color)' : '1px solid transparent'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <Avatar user={u} size="36px" />
+                    <Avatar user={user} size="36px" />
                     <div style={{ overflow: 'hidden' }}>
-                        <div style={{ fontWeight: 'bold', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.name}</div>
-                        <div style={{ fontSize: '12px', color: 'var(--text-soft)' }}>{u.username}#{u.tag}</div>
+                        <div style={{ fontWeight: 'bold', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name}</div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-soft)' }}>{user.username}#{user.tag}</div>
                     </div>
                 </div>
                 
-                {invitingUserId === u._id ? (
+                {invitingUserId === user._id ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}>
                         <select 
                             value={selectedWorkspaceId} 
@@ -174,7 +174,7 @@ const HomeScreen = () => {
                                 X
                             </button>
                             <button 
-                                onClick={() => handleInvite(u)}
+                                onClick={() => handleInvite(user)}
                                 disabled={isInviting || !selectedWorkspaceId}
                                 style={{ padding: '4px 8px', fontSize: '11px', background: 'var(--accent-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                             >
@@ -187,7 +187,7 @@ const HomeScreen = () => {
                         {/* Botón de tres puntos para móvil */}
                         <button 
                             className="user-item-menu-toggle"
-                            onClick={(e) => { e.stopPropagation(); setActiveMenuId(activeMenuId === u._id ? null : u._id); }}
+                            onClick={(e) => { e.stopPropagation(); setActiveMenuId(activeMenuId === user._id ? null : user._id); }}
                             style={{ 
                                 background: 'none', 
                                 border: 'none', 
@@ -202,11 +202,11 @@ const HomeScreen = () => {
                             ⋮
                         </button>
 
-                        <div className={`user-item-actions ${activeMenuId === u._id ? 'open' : ''}`}>
+                        <div className={`user-item-actions ${activeMenuId === user._id ? 'open' : ''}`}>
                             {!isContact && (
                                 <button 
-                                    onClick={() => !isPending && handleAddContact(u._id)}
-                                    disabled={addingContactId === u._id || isPending}
+                                    onClick={() => !isPending && handleAddContact(user._id)}
+                                    disabled={addingContactId === user._id || isPending}
                                     style={{ 
                                         padding: '6px 12px', 
                                         fontSize: '12px', 
@@ -219,11 +219,11 @@ const HomeScreen = () => {
                                         whiteSpace: 'nowrap'
                                     }}
                                 >
-                                    {addingContactId === u._id ? '...' : isPending ? 'Pendiente' : '+ Contacto'}
+                                    {addingContactId === user._id ? '...' : isPending ? 'Pendiente' : '+ Contacto'}
                                 </button>
                             )}
                             <button 
-                                onClick={() => setInvitingUserId(u._id)}
+                                onClick={() => setInvitingUserId(user._id)}
                                 style={{ 
                                     padding: '6px 12px', 
                                     fontSize: '12px', 
@@ -239,7 +239,7 @@ const HomeScreen = () => {
                             </button>
                             {isContact && (
                                 <button 
-                                    onClick={() => navigate(`/chat/${u._id}`)}
+                                    onClick={() => navigate(`/chat/${user._id}`)}
                                     style={{ 
                                         padding: '6px 12px', 
                                         fontSize: '12px', 
@@ -256,7 +256,7 @@ const HomeScreen = () => {
                             )}
                             {isContact && (
                                 <button 
-                                    onClick={() => handleDeleteContact(u._id)}
+                                    onClick={() => handleDeleteContact(user._id)}
                                     style={{ 
                                         padding: '6px 12px', 
                                         fontSize: '12px', 
@@ -367,7 +367,7 @@ const HomeScreen = () => {
                                     ) : filteredContacts.length === 0 ? (
                                         <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-soft)', fontSize: '13px' }}>No tienes contactos.</div>
                                     ) : (
-                                        filteredContacts.map(c => renderUserItem(c, true))
+                                        filteredContacts.map(contact => renderUserItem(contact, true))
                                     )}
                                 </div>
                             </div>
@@ -383,7 +383,7 @@ const HomeScreen = () => {
                                     ) : filteredOthers.length === 0 ? (
                                         <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-soft)', fontSize: '13px' }}>No se encontraron usuarios.</div>
                                     ) : (
-                                        filteredOthers.map(u => renderUserItem(u, false))
+                                        filteredOthers.map(user => renderUserItem(user, false))
                                     )}
                                 </div>
                             </div>

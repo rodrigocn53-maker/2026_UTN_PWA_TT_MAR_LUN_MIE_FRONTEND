@@ -32,11 +32,11 @@ const EditProfileModal = ({ isOpen, onClose, onUpdateSuccess }) => {
     const handleMouseMove = (e) => {
         if (!isDragging) return;
         const rect = e.currentTarget.getBoundingClientRect();
-        const x = ((e.clientX - rect.left) / rect.width) * 100;
-        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        const relativeX = ((e.clientX - rect.left) / rect.width) * 100;
+        const relativeY = ((e.clientY - rect.top) / rect.height) * 100;
         setPosition({ 
-            x: Math.max(0, Math.min(100, x)), 
-            y: Math.max(0, Math.min(100, y)) 
+            x: Math.max(0, Math.min(100, relativeX)), 
+            y: Math.max(0, Math.min(100, relativeY)) 
         });
     };
 

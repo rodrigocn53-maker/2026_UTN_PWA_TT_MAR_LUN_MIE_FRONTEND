@@ -44,13 +44,13 @@ const TopNav = ({ currentWorkspaceId, onChannelSelect }) => {
         
         const darkenColor = (hex, amount) => {
             let col = hex.replace('#', '');
-            let r = parseInt(col.substring(0, 2), 16);
-            let g = parseInt(col.substring(2, 4), 16);
-            let b = parseInt(col.substring(4, 6), 16);
-            r = Math.max(0, r - amount);
-            g = Math.max(0, g - amount);
-            b = Math.max(0, b - amount);
-            return `rgb(${r}, ${g}, ${b})`;
+            let red = parseInt(col.substring(0, 2), 16);
+            let green = parseInt(col.substring(2, 4), 16);
+            let blue = parseInt(col.substring(4, 6), 16);
+            red = Math.max(0, red - amount);
+            green = Math.max(0, green - amount);
+            blue = Math.max(0, blue - amount);
+            return `rgb(${red}, ${green}, ${blue})`;
         };
         document.documentElement.style.setProperty('--accent-color-dark', darkenColor(accentColor, 30));
     }, [themeMode, accentColor]);

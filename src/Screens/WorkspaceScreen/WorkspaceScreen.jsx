@@ -95,7 +95,7 @@ const WorkspaceScreen = () => {
     const { user } = useContext(AuthContext);
     const userId = user?.id;
 
-    const currentUserMember = members?.find(m => String(m.user_id) === String(userId));
+    const currentUserMember = members?.find(member => String(member.user_id) === String(userId));
     const userRole = currentUserMember?.member_role;
 
     // Si los canales se cargan y no hay canal activo, por defecto selecciona el primero
@@ -321,9 +321,9 @@ const WorkspaceScreen = () => {
                                                 {members && members.length > 0 && (
                                                     <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', padding: '4px', borderRadius: '4px', transition: 'background-color 0.2s ease' }} className="slack-sidebar-item" onClick={() => setIsMembersModalOpen(true)} title="Ver todos los miembros">
                                                         <div style={{ width: '1px', height: '16px', background: 'var(--border-color)', margin: '0 8px' }}></div>
-                                                        {members.slice(0, 3).map((m, i) => (
-                                                            <div key={m.user_id} style={{ marginLeft: i > 0 ? '-8px' : '0', border: '2px solid var(--bg-color)', borderRadius: '50%', overflow: 'hidden', position: 'relative', zIndex: 3 - i }}>
-                                                                <Avatar user={{ name: m.user_name || 'U' }} size="24px" borderRadius="50%" />
+                                                        {members.slice(0, 3).map((member, index) => (
+                                                            <div key={member.user_id} style={{ marginLeft: index > 0 ? '-8px' : '0', border: '2px solid var(--bg-color)', borderRadius: '50%', overflow: 'hidden', position: 'relative', zIndex: 3 - index }}>
+                                                                <Avatar user={{ name: member.user_name || 'U' }} size="24px" borderRadius="50%" />
                                                             </div>
                                                         ))}
                                                         {members.length > 3 && <div style={{ fontSize: '12px', color: 'var(--text-soft)', marginLeft: '4px', fontWeight: 'bold' }}>+{members.length - 3}</div>}
@@ -540,16 +540,16 @@ const WorkspaceScreen = () => {
                                     <div style={{ fontSize: '13px', color: 'var(--text-soft)' }}>Cargando contactos...</div>
                                 ) : contacts.length > 0 ? (
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '150px', overflowY: 'auto' }}>
-                                        {contacts.map(c => (
-                                            <div key={c._id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px', border: '1px solid var(--border-color)', borderRadius: '6px', cursor: 'pointer', background: inviteIdentifier === `${c.username}#${c.tag}` ? 'var(--bg-soft)' : 'transparent' }} onClick={() => setInviteIdentifier(`${c.username}#${c.tag}`)}>
+                                        {contacts.map(contact => (
+                                            <div key={contact._id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px', border: '1px solid var(--border-color)', borderRadius: '6px', cursor: 'pointer', background: inviteIdentifier === `${contact.username}#${contact.tag}` ? 'var(--bg-soft)' : 'transparent' }} onClick={() => setInviteIdentifier(`${contact.username}#${contact.tag}`)}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                    <Avatar user={c} size="28px" />
+                                                    <Avatar user={contact} size="28px" />
                                                     <div style={{ fontSize: '14px' }}>
-                                                        <div style={{ fontWeight: 'bold' }}>{c.name}</div>
-                                                        <div style={{ fontSize: '12px', color: 'var(--text-soft)' }}>{c.username}#{c.tag}</div>
+                                                        <div style={{ fontWeight: 'bold' }}>{contact.name}</div>
+                                                        <div style={{ fontSize: '12px', color: 'var(--text-soft)' }}>{contact.username}#{contact.tag}</div>
                                                     </div>
                                                 </div>
-                                                {inviteIdentifier === `${c.username}#${c.tag}` && (
+                                                {inviteIdentifier === `${contact.username}#${contact.tag}` && (
                                                     <div style={{ color: '#007a5a', fontWeight: 'bold' }}>✓</div>
                                                 )}
                                             </div>
