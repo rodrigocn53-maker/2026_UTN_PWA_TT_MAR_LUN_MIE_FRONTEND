@@ -14,19 +14,28 @@ const Avatar = ({ user, size = '32px', borderRadius = '4px', style = {} }) => {
     if (avatarSrc) {
         const config = user?.avatar_config || { zoom: 1, position: { x: 50, y: 50 } };
         return (
-            <img 
-                src={avatarSrc} 
-                alt={name} 
-                style={{ 
-                    width: size, 
-                    height: size, 
-                    borderRadius, 
-                    objectFit: 'cover',
-                    transform: `scale(${config.zoom || 1})`,
-                    objectPosition: `${config.position?.x || 50}% ${config.position?.y || 50}%`,
-                    ...style 
-                }} 
-            />
+            <div style={{ 
+                width: size, 
+                height: size, 
+                borderRadius, 
+                overflow: 'hidden', 
+                flexShrink: 0,
+                isolation: 'isolate',
+                ...style 
+            }}>
+                <img 
+                    src={avatarSrc} 
+                    alt={name} 
+                    style={{ 
+                        width: '100%', 
+                        height: '100%', 
+                        objectFit: 'cover',
+                        transform: `scale(${config.zoom || 1})`,
+                        objectPosition: `${config.position?.x || 50}% ${config.position?.y || 50}%`,
+                        display: 'block'
+                    }} 
+                />
+            </div>
         );
     }
 

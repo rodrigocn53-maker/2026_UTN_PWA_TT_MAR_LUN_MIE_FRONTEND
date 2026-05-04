@@ -15,6 +15,7 @@ const EditProfileModal = ({ isOpen, onClose, onUpdateSuccess }) => {
     const [zoom, setZoom] = useState(user?.avatar_config?.zoom || 1);
     const [position, setPosition] = useState(user?.avatar_config?.position || { x: 50, y: 50 }); // Porcentajes
     const [isDragging, setIsDragging] = useState(false);
+    const [dragStart, setDragStart] = useState({ x: 0, y: 0, posX: 50, posY: 50 });
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -26,17 +27,33 @@ const EditProfileModal = ({ isOpen, onClose, onUpdateSuccess }) => {
         }
     };
 
-    const handleMouseDown = () => setIsDragging(true);
+    const handleMouseDown = (e) => {
+        setIsDragging(true);
+        setDragStart({
+            x: e.clientX,
+            y: e.clientY,
+            posX: position.x,
+            posY: position.y
+        });
+    };
+
     const handleMouseUp = () => setIsDragging(false);
 
     const handleMouseMove = (e) => {
         if (!isDragging) return;
-        const rect = e.currentTarget.getBoundingClientRect();
-        const relativeX = ((e.clientX - rect.left) / rect.width) * 100;
-        const relativeY = ((e.clientY - rect.top) / rect.height) * 100;
+        
+        // Sensibilidad inversamente proporcional al zoom para que el arrastre sea natural
+        // Un movimiento de 150px (tamaño del div) debería cubrir el rango si el zoom es suficiente
+        const deltaX = e.clientX - dragStart.x;
+        const deltaY = e.clientY - dragStart.y;
+        
+        // Factor de sensibilidad: ajustamos cuánto cambia el % según el movimiento
+        // Si el zoom es mayor, necesitamos menos cambio en % para el mismo movimiento en px
+        const sensitivity = 0.5 / (zoom || 1); 
+
         setPosition({ 
-            x: Math.max(0, Math.min(100, relativeX)), 
-            y: Math.max(0, Math.min(100, relativeY)) 
+            x: Math.max(0, Math.min(100, dragStart.posX - (deltaX * sensitivity))), 
+            y: Math.max(0, Math.min(100, dragStart.posY - (deltaY * sensitivity))) 
         });
     };
 
@@ -84,7 +101,10 @@ const EditProfileModal = ({ isOpen, onClose, onUpdateSuccess }) => {
                                 borderRadius: '50%', border: '4px solid var(--accent-color)', 
                                 overflow: 'hidden', position: 'relative', 
                                 cursor: isDragging ? 'grabbing' : 'grab',
-                                background: '#f0f0f0'
+                                background: '#f0f0f0',
+                                isolation: 'isolate', // Forzar nuevo contexto de apilamiento para el recorte
+                                WebkitMaskImage: '-webkit-radial-gradient(white, black)', // Fix para recortes circulares con transform en algunos navegadores
+                                transform: 'translateZ(0)' // Forzar aceleración GPU y mejor recorte
                             }}
                             onMouseDown={handleMouseDown}
                             onMouseUp={handleMouseUp}
