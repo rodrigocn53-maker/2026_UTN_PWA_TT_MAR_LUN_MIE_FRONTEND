@@ -144,13 +144,17 @@ const HomeScreen = () => {
                 borderRadius: '8px',
                 transition: 'background 0.2s',
                 marginBottom: '4px',
-                border: invitingUserId === user._id ? '1px solid var(--accent-color)' : '1px solid transparent'
+                border: invitingUserId === user._id ? '1px solid var(--accent-color)' : '1px solid transparent',
+                flexWrap: 'wrap',
+                gap: '8px'
             }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <Avatar user={user} size="36px" />
-                    <div style={{ overflow: 'hidden' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+                    <div style={{ flexShrink: 0 }}>
+                        <Avatar user={user} size="36px" />
+                    </div>
+                    <div style={{ overflow: 'hidden', minWidth: 0, flex: 1 }}>
                         <div style={{ fontWeight: 'bold', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name}</div>
-                        <div style={{ fontSize: '12px', color: 'var(--text-soft)' }}>{user.username}#{user.tag}</div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-soft)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.username}#{user.tag}</div>
                     </div>
                 </div>
                 
@@ -183,7 +187,7 @@ const HomeScreen = () => {
                         </div>
                     </div>
                 ) : (
-                    <div style={{ display: 'flex', gap: '8px', position: 'relative' }}>
+                    <div style={{ display: 'flex', gap: '8px', position: 'relative', flexWrap: 'wrap', justifyContent: 'flex-end', flexShrink: 0 }}>
                         {/* Botón de tres puntos para móvil */}
                         <button 
                             className="user-item-menu-toggle"

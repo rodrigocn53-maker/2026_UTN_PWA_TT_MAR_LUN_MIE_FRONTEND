@@ -193,6 +193,15 @@ body {
     .slack-chat-header {
         padding: 0 12px !important;
     }
+
+    .slack-chat-messages {
+        padding: 12px 8px !important;
+    }
+
+    .slack-message-container {
+        padding: 4px !important;
+        gap: 8px !important;
+    }
 }
 
 .slack-sidebar-header {
@@ -471,6 +480,8 @@ select.auth-input {
 .user-item-actions {
     display: flex;
     gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 @media (max-width: 600px) {

@@ -320,14 +320,14 @@ const WorkspaceScreen = () => {
                         {workspace && activeChannel ? (
                             <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                                 <div style={{ paddingBottom: '20px', borderBottom: '1px solid var(--border-color)', marginBottom: '20px' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                            <h1 style={{ fontSize: '24px', margin: '0', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                <div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
+                                            <h1 style={{ fontSize: '24px', margin: '0', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                                                <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                                     <span style={{ color: 'var(--text-soft)', marginRight: '4px' }}>#</span> {activeChannel.channel_name}
                                                 </div>
                                                 {(userRole === 'owner' || userRole === 'admin') && (
-                                                    <button onClick={() => setIsEditChannelModalOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-soft)', display: 'flex', alignItems: 'center', padding: '4px' }} title="Editar Canal">
+                                                    <button onClick={() => setIsEditChannelModalOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-soft)', display: 'flex', alignItems: 'center', padding: '4px', flexShrink: 0 }} title="Editar Canal">
                                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                                     </button>
                                                 )}
@@ -363,7 +363,7 @@ const WorkspaceScreen = () => {
                                             )}
                                         </div>
                                         
-                                        <div className="mobile-actions">
+                                        <div className="mobile-actions" style={{ flexShrink: 0, marginLeft: '8px' }}>
                                             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} style={{ background: 'none', border: '1px solid var(--border-color)', borderRadius: '4px', padding: '6px', cursor: 'pointer', color: 'var(--text-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
                                             </button>
@@ -394,13 +394,13 @@ const WorkspaceScreen = () => {
                                         messages.map(msg => (
                                             <div key={msg.id} className="slack-message-container" style={{ display: 'flex', gap: '12px', opacity: msg.isOptimistic ? 0.6 : 1, transition: 'opacity 0.3s ease', position: 'relative', padding: '8px', borderRadius: '8px' }}>
                                                 <Avatar user={msg.sender} size="36px" borderRadius="4px" />
-                                                <div style={{ flex: 1 }}>
-                                                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                                                        <span style={{ fontWeight: 'bold', color: 'var(--text-color)' }}>{msg.sender?.name || 'Usuario'}</span>
-                                                        <span style={{ fontSize: '12px', color: 'var(--text-soft)' }}>
+                                                <div style={{ flex: 1, minWidth: 0 }}>
+                                                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
+                                                        <span style={{ fontWeight: 'bold', color: 'var(--text-color)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>{msg.sender?.name || 'Usuario'}</span>
+                                                        <span style={{ fontSize: '12px', color: 'var(--text-soft)', flexShrink: 0 }}>
                                                             {new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                                                         </span>
-                                                        {msg.is_edited && <span style={{ fontSize: '11px', color: 'var(--text-soft)', fontStyle: 'italic' }}>(editado)</span>}
+                                                        {msg.is_edited && <span style={{ fontSize: '11px', color: 'var(--text-soft)', fontStyle: 'italic', flexShrink: 0 }}>(editado)</span>}
                                                     </div>
                                                     
                                                     {editingMessageId === msg.id ? (
@@ -427,9 +427,9 @@ const WorkspaceScreen = () => {
                                                             {msg.file_url && (
                                                                 <div style={{ marginTop: '8px' }}>
                                                                     {msg.file_type === 'image' ? (
-                                                                        <img src={msg.file_url.startsWith('http') || msg.file_url.startsWith('data:') || msg.file_url.startsWith('blob:') ? msg.file_url : `${ENVIRONMENT.API_URL}${msg.file_url}`} alt="Attached" style={{ maxWidth: '300px', borderRadius: '8px', border: '1px solid var(--border-color)' }} />
+                                                                        <img src={msg.file_url.startsWith('http') || msg.file_url.startsWith('data:') || msg.file_url.startsWith('blob:') ? msg.file_url : `${ENVIRONMENT.API_URL}${msg.file_url}`} alt="Attached" style={{ maxWidth: 'min(300px, 100%)', borderRadius: '8px', border: '1px solid var(--border-color)' }} />
                                                                     ) : msg.file_type === 'audio' ? (
-                                                                        <audio controls src={msg.file_url.startsWith('http') || msg.file_url.startsWith('data:') || msg.file_url.startsWith('blob:') ? msg.file_url : `${ENVIRONMENT.API_URL}${msg.file_url}`} style={{ height: '32px' }} />
+                                                                        <audio controls src={msg.file_url.startsWith('http') || msg.file_url.startsWith('data:') || msg.file_url.startsWith('blob:') ? msg.file_url : `${ENVIRONMENT.API_URL}${msg.file_url}`} style={{ height: '32px', maxWidth: '100%' }} />
                                                                     ) : null}
                                                                 </div>
                                                             )}
