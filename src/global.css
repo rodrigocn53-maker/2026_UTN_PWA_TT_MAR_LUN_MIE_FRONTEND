@@ -48,8 +48,43 @@ body {
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    padding: 48px 0;
+    padding: 48px 16px;
     background-color: var(--bg-color);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 24px;
+    max-width: 400px;
+    width: 100%;
+}
+
+.auth-header h1 {
+    font-size: clamp(24px, 5vw, 48px);
+    margin-bottom: 12px;
+}
+
+.auth-header p {
+    font-size: clamp(14px, 4vw, 16px);
+}
+
+.auth-links {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.auth-links a {
+    color: #1164a3;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.auth-links a:hover {
+    text-decoration: underline;
 }
 
 .slack-app-layout {
