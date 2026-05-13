@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { Link, useNavigate } from 'react-router'
 import Avatar from '../Avatar/Avatar'
 import { getConversations } from '../../services/dmService'
+import { AuthContext } from '../../Context/AuthContext'
 
 const Sidebar = ({ 
     isOpen, 
@@ -20,6 +21,8 @@ const Sidebar = ({
     const [sidebarTab, setSidebarTab] = useState(activeTab)
     const [conversations, setConversations] = useState([])
     const navigate = useNavigate()
+    const { user } = useContext(AuthContext)
+    const userId = user?.id || user?._id
 
     useEffect(() => {
         const fetchDMs = async () => {
@@ -136,17 +139,23 @@ const Sidebar = ({
                                 {conversations.length === 0 ? (
                                     <li className="slack-sidebar-item" style={{ opacity: 0.7, fontSize: '13px' }}>No hay chats activos</li>
                                 ) : (
-                                    conversations.map(conv => (
-                                        <li key={conv.contact.id} className="slack-sidebar-item" style={{ padding: '8px 12px' }}>
-                                            <Link to={`/chat/${conv.contact.id}`} onClick={onClose} style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
-                                                <Avatar user={conv.contact} size="24px" borderRadius="4px" />
-                                                <div style={{ overflow: 'hidden', flex: 1 }}>
-                                                    <div style={{ fontWeight: 'bold', fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{conv.contact.name}</div>
-                                                    <div style={{ fontSize: '11px', opacity: 0.7, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{conv.lastMessage.content}</div>
-                                                </div>
-                                            </Link>
-                                        </li>
-                                    ))
+                                    conversations.map(conv => {
+                                        const isLastMessageMine = String(conv.lastMessage?.sender) === String(userId);
+                                        return (
+                                            <li key={conv.contact.id} className="slack-sidebar-item" style={{ padding: '8px 12px' }}>
+                                                <Link to={`/chat/${conv.contact.id}`} onClick={onClose} style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+                                                    <Avatar user={conv.contact} size="24px" borderRadius="4px" />
+                                                    <div style={{ overflow: 'hidden', flex: 1 }}>
+                                                        <div style={{ fontWeight: 'bold', fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{conv.contact.name}</div>
+                                                        <div style={{ fontSize: '11px', opacity: 0.7, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'flex', gap: '4px', alignItems: 'center' }}>
+                                                            {isLastMessageMine && <span style={{ fontWeight: 'bold', opacity: 0.9 }}>⤷ Tú:</span>}
+                                                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{conv.lastMessage.content}</span>
+                                                        </div>
+                                                    </div>
+                                                </Link>
+                                            </li>
+                                        );
+                                    })
                                 )}
                                 <li className="slack-sidebar-item" style={{ opacity: 0.7, cursor: 'pointer', marginTop: '12px' }} onClick={() => navigate('/home')}>
                                     <span>+</span>

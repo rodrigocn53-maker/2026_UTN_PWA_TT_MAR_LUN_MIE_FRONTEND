@@ -11,6 +11,7 @@ const NotificationItem = ({ notification, onRespond, onCloseMenu, onRead }) => {
     const isContactAccepted = notification.type === 'contact_accepted';
     const isContactRejected = notification.type === 'contact_rejected';
     const isDirectMessage = notification.type === 'direct_message';
+    const isInfoAlert = notification.type === 'info_alert';
 
     const isUnread = !notification.read || ((isWorkspaceInvitation || isContactRequest) && notification.status === 'pending');
 
@@ -72,7 +73,7 @@ const NotificationItem = ({ notification, onRespond, onCloseMenu, onRead }) => {
                 </div>
             )}
 
-            {(isContactAccepted || isContactRejected) && !notification.read && (
+            {(isContactAccepted || isContactRejected || isInfoAlert) && !notification.read && (
                 <button 
                     onClick={() => onRead(notification._id || notification.id)}
                     style={{ background: 'none', border: 'none', color: '#1164A3', fontSize: '11px', cursor: 'pointer', padding: 0 }}>

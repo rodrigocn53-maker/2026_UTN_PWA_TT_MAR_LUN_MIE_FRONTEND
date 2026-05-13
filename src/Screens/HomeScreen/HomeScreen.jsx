@@ -11,6 +11,7 @@ import Toast from '../../Components/Toast/Toast'
 import SupportModal from '../../Components/SupportModal/SupportModal'
 import Sidebar from '../../Components/Sidebar/Sidebar'
 import { getConversations } from '../../services/dmService'
+import SlackLogo from '../../Components/SlackLogo/SlackLogo'
 
 const HomeScreen = () => {
     const navigate = useNavigate()
@@ -318,16 +319,7 @@ const HomeScreen = () => {
                         
                         {/* Welcome Panel */}
                         <div style={{ background: 'var(--bg-color)', padding: '40px', borderRadius: '12px', border: '1px solid var(--border-color)', textAlign: 'center', boxShadow: '0 4px 12px var(--shadow)' }}>
-                            <svg viewBox="0 0 244.8 244.8" width="80" height="80" style={{ marginBottom: '20px' }} xmlns="http://www.w3.org/2000/svg">
-                                <path d="m89.7 155.1c-15.8 0-28.6 12.8-28.6 28.6s12.8 28.6 28.6 28.6 28.6-12.8 28.6-28.6v-28.6z" fill="#e01e5a"/>
-                                <path d="m104 155.1c0-15.8-12.8-28.6-28.6-28.6s-28.6 12.8-28.6 28.6 12.8 28.6 28.6 28.6h28.6z" fill="#e01e5a"/>
-                                <path d="m89.7 89.7c0 15.8-12.8 28.6-28.6 28.6s-28.6-12.8-28.6-28.6 12.8-28.6 28.6-28.6 28.6 12.8 28.6 28.6z" fill="#36c5f0"/>
-                                <path d="m89.7 104c15.8 0 28.6-12.8 28.6-28.6s-12.8-28.6-28.6-28.6-28.6 12.8-28.6 28.6v28.6z" fill="#36c5f0"/>
-                                <path d="m155.1 89.7c15.8 0 28.6-12.8 28.6-28.6s-12.8-28.6-28.6-28.6-28.6 12.8-28.6 28.6v28.6z" fill="#2eb67d"/>
-                                <path d="m140.8 89.7c0 15.8 12.8 28.6 28.6 28.6s28.6-12.8 28.6-28.6-12.8-28.6-28.6-28.6h-28.6z" fill="#2eb67d"/>
-                                <path d="m155.1 155.1c0-15.8 12.8-28.6 28.6-28.6s28.6 12.8 28.6 28.6-12.8 28.6-28.6 28.6-28.6-12.8-28.6-28.6z" fill="#ecb22e"/>
-                                <path d="m155.1 140.8c-15.8 0-28.6 12.8-28.6 28.6s12.8 28.6 28.6 28.6 28.6-12.8 28.6-28.6v-28.6z" fill="#ecb22e"/>
-                            </svg>
+                            <SlackLogo width="80px" height="80px" style={{ marginBottom: '20px' }} />
                             <h1 style={{ color: 'var(--text-color)', fontSize: '28px', marginBottom: '12px' }}>Es genial tenerte aquí</h1>
                             <p style={{ color: 'var(--text-soft)', fontSize: '16px', maxWidth: '500px', margin: '0 auto 24px' }}>
                                 Slack es el lugar donde ocurre el trabajo. Comienza seleccionando un espacio de trabajo a la izquierda o crea uno nuevo para tu equipo.

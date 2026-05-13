@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { useParams, Link } from 'react-router'
+import { useParams, Link, useNavigate } from 'react-router'
 import useWorkspace from '../../hooks/useWorkspace'
 import useWorkspaces from '../../hooks/useWorkspaces'
 import useChannels from '../../hooks/useChannels'
@@ -38,6 +38,7 @@ const WorkspaceScreen = () => {
     const [activeChannel, setActiveChannel] = useState(null)
     const [messageInput, setMessageInput] = useState('')
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+    const navigate = useNavigate()
     const [isSupportModalOpen, setIsSupportModalOpen] = useState(false)
     const [sidebarTab, setSidebarTab] = useState('workspaces') // 'workspaces' or 'dms'
     const [conversations, setConversations] = useState([])
@@ -106,12 +107,32 @@ const WorkspaceScreen = () => {
     const currentUserMember = members?.find(member => String(member.user_id) === String(userId));
     const userRole = currentUserMember?.member_role;
 
-    // Si los canales se cargan y no hay canal activo, por defecto selecciona el primero
+    // Redirección elegante si el espacio no existe o da error
     useEffect(() => {
-        if (channels && channels.length > 0 && !activeChannel) {
-            setActiveChannel(channels[0]);
+        if (errorWorkspace) {
+            showToast("El espacio de trabajo ya no existe o fue eliminado", 'error')
+            setTimeout(() => {
+                navigate('/')
+            }, 2000)
         }
-    }, [channels, activeChannel]);
+    }, [errorWorkspace])
+
+    // Validar canal activo y fallback al primero si el activo fue eliminado o no existe
+    useEffect(() => {
+        if (channels && channels.length > 0) {
+            if (activeChannel) {
+                const stillExists = channels.find(ch => ch.channel_id === activeChannel.channel_id)
+                if (!stillExists) {
+                    setActiveChannel(channels[0])
+                    showToast("El canal seleccionado ya no está disponible", 'warning')
+                }
+            } else {
+                setActiveChannel(channels[0])
+            }
+        } else if (channels && channels.length === 0) {
+            setActiveChannel(null)
+        }
+    }, [channels, activeChannel])
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -416,7 +437,12 @@ const WorkspaceScreen = () => {
                                                 <Avatar user={msg.sender} size="36px" borderRadius="4px" />
                                                 <div style={{ flex: 1, minWidth: 0 }}>
                                                     <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
-                                                        <span style={{ fontWeight: 'bold', color: 'var(--text-color)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>{msg.sender?.name || 'Usuario'}</span>
+                                                        <span style={{ fontWeight: 'bold', color: 'var(--text-color)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
+                                                            {String(msg.sender?._id || msg.sender?.id || msg.sender) === String(userId) && (
+                                                                <span style={{ color: '#1164A3', marginRight: '6px', fontWeight: 'bold' }}>⤷ Tú:</span>
+                                                            )}
+                                                            {msg.sender?.name || 'Usuario'}
+                                                        </span>
                                                         <span style={{ fontSize: '12px', color: 'var(--text-soft)', flexShrink: 0 }}>
                                                             {new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                                                         </span>

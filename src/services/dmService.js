@@ -43,3 +43,44 @@ export const sendDirectMessage = async (receiverId, content, imageFile = null) =
         return { ok: false, message: "Error al conectar con el servidor" };
     }
 }
+
+export const updateDirectMessage = async (messageId, content) => {
+    try {
+        const response = await fetch(`${ENVIRONMENT.API_URL}/api/dm/message/${messageId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ content })
+        });
+        return await response.json();
+    } catch (error) {
+        console.error("Error updating DM", error);
+        return { ok: false, message: "Error al conectar con el servidor" };
+    }
+}
+
+export const deleteDirectMessage = async (messageId) => {
+    try {
+        const response = await fetch(`${ENVIRONMENT.API_URL}/api/dm/message/${messageId}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+        return await response.json();
+    } catch (error) {
+        console.error("Error deleting DM", error);
+        return { ok: false, message: "Error al conectar con el servidor" };
+    }
+}
+
+export const deleteChat = async (contactId) => {
+    try {
+        const response = await fetch(`${ENVIRONMENT.API_URL}/api/dm/chat/${contactId}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+        return await response.json();
+    } catch (error) {
+        console.error("Error deleting chat", error);
+        return { ok: false, message: "Error al conectar con el servidor" };
+    }
+}
