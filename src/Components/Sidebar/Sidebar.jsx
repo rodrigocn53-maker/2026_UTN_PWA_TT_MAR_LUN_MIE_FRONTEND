@@ -14,6 +14,7 @@ const Sidebar = ({
     activeChannelId,
     onChannelSelect,
     onCreateChannel,
+    onCreateWorkspace,
     activeTab = 'workspaces' 
 }) => {
     const [sidebarTab, setSidebarTab] = useState(activeTab)
@@ -54,7 +55,7 @@ const Sidebar = ({
                                 onClick={() => setSidebarTab('workspaces')}
                                 style={{ flex: 1, padding: '6px', fontSize: '12px', border: 'none', borderRadius: '6px', cursor: 'pointer', background: sidebarTab === 'workspaces' ? 'var(--accent-color)' : 'transparent', color: 'white', fontWeight: 'bold' }}
                             >
-                                Workspaces
+                                Espacios de Trabajo
                             </button>
                             <button 
                                 onClick={() => setSidebarTab('dms')}
@@ -115,9 +116,16 @@ const Sidebar = ({
                                         </Link>
                                     </li>
                                 ))}
-                                <li className="slack-sidebar-item" style={{ opacity: 0.7, cursor: 'pointer', marginTop: '8px' }} onClick={() => navigate('/home')}>
+                                <li className="slack-sidebar-item" style={{ opacity: 0.7, cursor: 'pointer', marginTop: '8px' }} onClick={() => {
+                                    if (onCreateWorkspace) {
+                                        onCreateWorkspace();
+                                    } else {
+                                        navigate('/home');
+                                    }
+                                    onClose();
+                                }}>
                                     <span>+</span>
-                                    <span style={{ marginLeft: '8px' }}>Explorar / Crear</span>
+                                    <span style={{ marginLeft: '8px' }}>Crear Espacio de Trabajo</span>
                                 </li>
                             </ul>
                         </div>

@@ -76,7 +76,7 @@ export default function NewWorkspaceModalScreen({ isOpen, onClose }) {
                         </header>
 
                         <div className="auth-header" style={{ marginBottom: '24px' }}>
-                            <h2 style={{ fontSize: '24px', margin: 0 }}>Crear un nuevo Workspace</h2>
+                            <h2 style={{ fontSize: '24px', margin: 0 }}>Crear un nuevo Espacio de Trabajo</h2>
                             <p style={{ fontSize: '15px' }}>Tu equipo se comunicará aquí.</p>
                         </div>
 
@@ -103,7 +103,7 @@ export default function NewWorkspaceModalScreen({ isOpen, onClose }) {
                                         name={CREATE_WORKSPACE_FORM_FIELD.DESCRIPTION}
                                         onChange={handleChangeInput}
                                         className="auth-input"
-                                        placeholder="¿De qué trata este workspace?"
+                                        placeholder="¿De qué trata este espacio?"
                                     />
                                 </div>
 
@@ -113,7 +113,7 @@ export default function NewWorkspaceModalScreen({ isOpen, onClose }) {
                                     style={{ marginBottom: '0' }}
                                     disabled={loading}
                                 >
-                                    {loading ? "Creando..." : "Crear Workspace"}
+                                    {loading ? "Creando..." : "Crear Espacio de Trabajo"}
                                 </button>
 
                                 {error && (

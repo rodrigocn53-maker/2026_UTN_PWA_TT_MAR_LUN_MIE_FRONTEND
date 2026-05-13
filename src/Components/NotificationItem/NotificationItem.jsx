@@ -10,6 +10,7 @@ const NotificationItem = ({ notification, onRespond, onCloseMenu, onRead }) => {
     const isContactRequest = notification.type === 'contact_request';
     const isContactAccepted = notification.type === 'contact_accepted';
     const isContactRejected = notification.type === 'contact_rejected';
+    const isDirectMessage = notification.type === 'direct_message';
 
     const isUnread = !notification.read || ((isWorkspaceInvitation || isContactRequest) && notification.status === 'pending');
 
@@ -29,6 +30,15 @@ const NotificationItem = ({ notification, onRespond, onCloseMenu, onRead }) => {
                         <span style={{ fontWeight: 'bold' }}>#{notification.workspace_id?.title}</span>{' '}
                         <span style={{ fontWeight: 'bold' }}>#{notification.channel_id?.name}</span>{' - '}
                         {notification.sender_id?.name || 'Alguien'}, dijo: ... {notification.message_count > 1 ? `[${notification.message_count}]` : ''}
+                    </div>
+                ) : isDirectMessage ? (
+                    <div onClick={() => {
+                        if (isUnread && onRead) onRead(notification._id || notification.id);
+                        navigate(`/chat/${notification.sender_id?._id || notification.sender_id}`);
+                        onCloseMenu();
+                    }} style={{ cursor: 'pointer' }}>
+                        <span style={{ fontWeight: 'bold' }}>{notification.sender_id?.name || 'Alguien'}</span>{' '}
+                        te envió un mensaje privado {notification.message_count > 1 ? `[${notification.message_count}]` : ''}
                     </div>
                 ) : isContactRequest ? (
                     <><strong>{notification.sender_id?.username || 'Alguien'}</strong> te envió una <strong>solicitud de contacto</strong></>

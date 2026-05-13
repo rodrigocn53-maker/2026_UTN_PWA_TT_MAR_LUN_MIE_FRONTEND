@@ -298,6 +298,7 @@ const WorkspaceScreen = () => {
                     activeChannelId={activeChannel?.channel_id}
                     onChannelSelect={(ch) => setActiveChannel(ch)}
                     onCreateChannel={() => setIsChannelModalOpen(true)}
+                    onCreateWorkspace={() => setIsModalOpen(true)}
                 />
 
                 <main className="slack-chat-area">
@@ -310,7 +311,7 @@ const WorkspaceScreen = () => {
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                             </button>
                             <div style={{ fontWeight: 'bold' }}>
-                                {loadingWorkspace ? 'Cargando...' : workspace ? `# ${workspace.title || workspace.workspace_title || 'general'}` : 'Selecciona un Workspace'}
+                                {loadingWorkspace ? 'Cargando...' : workspace ? `# ${workspace.title || workspace.workspace_title || 'general'}` : 'Selecciona un Espacio de Trabajo'}
                             </div>
                             <div title={isMessagesSyncing ? "Sincronizando..." : "Conectado"} style={{ width: '7px', height: '7px', background: isMessagesSyncing ? '#048d21ff99' : '#03a54199', borderRadius: '50%', animation: isMessagesSyncing ? 'slack-pulse 1.5s infinite' : 'none', marginLeft: '4px' }} />
                         </div>
@@ -558,16 +559,16 @@ const WorkspaceScreen = () => {
                 isOpen={isDeleteWorkspaceConfirmOpen} 
                 onClose={() => setIsDeleteWorkspaceConfirmOpen(false)} 
                 onConfirm={confirmDeleteWorkspace}
-                title="Eliminar Workspace"
-                message="¿Estás seguro de que deseas ELIMINAR este Workspace para todos los miembros? Esta acción es irreversible."
+                title="Eliminar Espacio de Trabajo"
+                message="¿Estás seguro de que deseas ELIMINAR este Espacio de Trabajo para todos los miembros? Esta acción es irreversible."
                 confirmText="Eliminar"
             />
             <ConfirmModal 
                 isOpen={isLeaveWorkspaceConfirmOpen} 
                 onClose={() => setIsLeaveWorkspaceConfirmOpen(false)} 
                 onConfirm={confirmLeaveWorkspace}
-                title="Abandonar Workspace"
-                message="¿Estás seguro de que deseas ABANDONAR este Workspace? Ya no tendrás acceso a él."
+                title="Abandonar Espacio de Trabajo"
+                message="¿Estás seguro de que deseas ABANDONAR este Espacio de Trabajo? Ya no tendrás acceso a él."
                 confirmText="Abandonar"
             />
             <ConfirmModal 

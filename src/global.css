@@ -511,12 +511,64 @@ select.auth-input {
     }
 }
 
-/* User Item Actions (Responsive) */
+/* User Item Actions (Floating Minibar) */
+.user-item-menu-toggle {
+    display: block !important;
+}
+
 .user-item-actions {
-    display: flex;
+    display: none;
+    position: absolute;
+    right: 36px; /* A la izquierda del botón de 3 puntos */
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: -4px 0 12px var(--shadow);
+    z-index: 100;
+    padding: 6px;
+    flex-direction: row;
     gap: 8px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
+    align-items: center;
+}
+
+.user-item-actions.open {
+    display: flex;
+    animation: fadeInRight 0.2s ease;
+}
+
+.user-item-actions button {
+    white-space: nowrap;
+    padding: 6px 12px !important;
+}
+
+@keyframes fadeInRight {
+    from { opacity: 0; transform: translate(10px, -50%); }
+    to { opacity: 1; transform: translate(0, -50%); }
+}
+
+@media (max-width: 600px) {
+    /* En móviles vuelve a ser un menú vertical tradicional hacia abajo */
+    .user-item-actions {
+        right: 0;
+        top: 100%;
+        transform: none;
+        flex-direction: column;
+        min-width: 120px;
+        box-shadow: 0 4px 12px var(--shadow);
+        padding: 8px;
+    }
+
+    .user-item-actions.open {
+        animation: fadeInDown 0.2s ease;
+    }
+
+    .user-item-actions button {
+        width: 100%;
+        text-align: center;
+        padding: 10px !important;
+    }
 }
 
 @media (max-width: 600px) {
@@ -525,7 +577,7 @@ select.auth-input {
     }
 
     .user-item-actions {
-        display: none; /* Oculto por defecto en móvil */
+        display: none;
         position: absolute;
         top: 100%;
         right: 0;
@@ -550,7 +602,6 @@ select.auth-input {
         padding: 10px !important;
     }
 }
-
 @keyframes fadeInDown {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }

@@ -136,7 +136,7 @@ const HomeScreen = () => {
         const isPending = contacts.pending?.some(p => p._id === user._id);
         
         return (
-            <div key={user._id} style={{ 
+            <div className="user-item" key={user._id} style={{ 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'space-between', 
@@ -146,7 +146,8 @@ const HomeScreen = () => {
                 marginBottom: '4px',
                 border: invitingUserId === user._id ? '1px solid var(--accent-color)' : '1px solid transparent',
                 flexWrap: 'wrap',
-                gap: '8px'
+                gap: '8px',
+                position: 'relative'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
                     <div style={{ flexShrink: 0 }}>
@@ -165,7 +166,7 @@ const HomeScreen = () => {
                             onChange={(e) => setSelectedWorkspaceId(e.target.value)}
                             style={{ padding: '4px', borderRadius: '4px', fontSize: '12px', background: 'var(--bg-color)', color: 'var(--text-color)', border: '1px solid var(--border-color)' }}
                         >
-                            <option value="">Selecciona Workspace</option>
+                            <option value="">Selecciona Espacio</option>
                             {workspaces?.map(ws => (
                                 <option key={ws.workspace_id} value={ws.workspace_id}>{ws.workspace_title}</option>
                             ))}
@@ -294,6 +295,7 @@ const HomeScreen = () => {
                     workspaces={workspaces}
                     loadingWorkspaces={loadingWorkspaces}
                     onSupportClick={() => setIsSupportModalOpen(true)}
+                    onCreateWorkspace={() => setIsModalOpen(true)}
                 />
 
                 <main className="slack-chat-area">

@@ -62,8 +62,9 @@ export default function EditChannelModalScreen({ isOpen, onClose, workspace_id, 
                 setIsSuccess(true);
                 setTimeout(() => {
                     setIsSuccess(false);
-                    onSuccess('delete'); // Recargar canales
+                    if (onSuccess) onSuccess('delete');
                     onClose();
+                    window.location.reload();
                 }, 1000);
             },
             onError: () => setIsDeleting(false)
@@ -85,8 +86,9 @@ export default function EditChannelModalScreen({ isOpen, onClose, workspace_id, 
             setIsSuccess(true);
             setTimeout(() => {
                 setIsSuccess(false);
-                onSuccess('update'); // Llamamos al callback para recargar la lista
+                if (onSuccess) onSuccess('update');
                 onClose();
+                window.location.reload();
             }, 1000);
         }
     }, [response]);

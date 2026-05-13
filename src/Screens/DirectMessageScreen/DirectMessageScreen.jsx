@@ -9,6 +9,7 @@ import TopNav from '../../Components/TopNav/TopNav'
 import Avatar from '../../Components/Avatar/Avatar'
 import Toast from '../../Components/Toast/Toast'
 import SupportModal from '../../Components/SupportModal/SupportModal'
+import NewWorkspaceModalScreen from '../NewWorkspaceModalScreen/NewWorkspaceModalScreen'
 
 const DirectMessageScreen = () => {
     const { contact_id } = useParams()
@@ -21,6 +22,7 @@ const DirectMessageScreen = () => {
     const [contact, setContact] = useState(null)
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const [isSupportModalOpen, setIsSupportModalOpen] = useState(false)
+    const [isWorkspaceModalOpen, setIsWorkspaceModalOpen] = useState(false)
     const [toast, setToast] = useState(null)
     
     const scrollRef = useRef(null)
@@ -100,6 +102,7 @@ const DirectMessageScreen = () => {
                     workspaces={workspaces}
                     loadingWorkspaces={loadingWorkspaces}
                     onSupportClick={() => setIsSupportModalOpen(true)}
+                    onCreateWorkspace={() => setIsWorkspaceModalOpen(true)}
                     activeTab="dms"
                 />
 
@@ -196,6 +199,7 @@ const DirectMessageScreen = () => {
                 </main>
             </div>
 
+            <NewWorkspaceModalScreen isOpen={isWorkspaceModalOpen} onClose={() => setIsWorkspaceModalOpen(false)} />
             <SupportModal isOpen={isSupportModalOpen} onClose={() => setIsSupportModalOpen(false)} />
             {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
         </div>

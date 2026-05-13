@@ -30,7 +30,7 @@ export default function EditWorkspaceModalScreen({ isOpen, onClose, workspace, o
         sendRequest({
             requestCb: async () => {
                 return await updateWorkspace(
-                    workspace.workspace_id || workspace.id,
+                    workspace._id || workspace.workspace_id || workspace.id,
                     formData[EDIT_WORKSPACE_FORM_FIELD.TITLE],
                     formData[EDIT_WORKSPACE_FORM_FIELD.DESCRIPTION],
                     workspace.url_image
@@ -49,8 +49,9 @@ export default function EditWorkspaceModalScreen({ isOpen, onClose, workspace, o
             setIsSuccess(true);
             setTimeout(() => {
                 setIsSuccess(false);
-                onSuccess(); 
+                if (onSuccess) onSuccess(); 
                 onClose();
+                window.location.reload();
             }, 1000);
         }
     }, [response]);
@@ -72,7 +73,7 @@ export default function EditWorkspaceModalScreen({ isOpen, onClose, workspace, o
                 ) : (
                     <>
                         <div className="auth-header" style={{ marginBottom: '24px' }}>
-                            <h2 style={{ fontSize: '24px', margin: 0 }}>Editar Workspace</h2>
+                            <h2 style={{ fontSize: '24px', margin: 0 }}>Editar Espacio de Trabajo</h2>
                             <p style={{ fontSize: '15px' }}>Modifica el nombre o descripción de tu espacio.</p>
                         </div>
 
@@ -101,7 +102,7 @@ export default function EditWorkspaceModalScreen({ isOpen, onClose, workspace, o
                                         value={formState[EDIT_WORKSPACE_FORM_FIELD.DESCRIPTION]}
                                         onChange={handleChangeInput}
                                         className="auth-input"
-                                        placeholder="¿De qué trata este workspace?"
+                                        placeholder="¿De qué trata este espacio?"
                                     />
                                 </div>
 
