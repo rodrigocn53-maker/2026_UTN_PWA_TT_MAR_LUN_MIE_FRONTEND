@@ -8,6 +8,7 @@ export default function MembersListModalScreen({ isOpen, onClose, members, works
     const { sendRequest, loading } = useRequest();
     const [actionLoading, setActionLoading] = useState(null);
     const [confirmConfig, setConfirmConfig] = useState({ isOpen: false, type: '', userId: null, role: null });
+    const [activeMenuId, setActiveMenuId] = useState(null);
 
     if (!isOpen) return null;
 
@@ -82,7 +83,7 @@ export default function MembersListModalScreen({ isOpen, onClose, members, works
                                 }}
                                 className="slack-message-container" /* Reutilizamos esta clase para tener un hover sutil */
                             >
-                                <Avatar user={{ name: member.user_name || '?' }} size="36px" borderRadius="4px" />
+                                <Avatar user={{ name: member.user_name || '?', avatar: member.user_avatar, avatar_config: member.user_avatar_config }} size="36px" borderRadius="4px" />
                                 <div style={{ flex: 1, overflow: 'hidden' }}>
                                     <div style={{ fontWeight: 'bold', fontSize: '15px', color: 'var(--text-color)', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                         {member.user_name}
@@ -98,26 +99,44 @@ export default function MembersListModalScreen({ isOpen, onClose, members, works
                                 </div>
                                 
                                 {canManageMembers && member.member_role !== 'owner' && (
-                                    <div style={{ display: 'flex', gap: '4px' }}>
-                                        {member.member_role === 'user' && (
-                                            <button 
-                                                onClick={() => handlePromote(member.user_id)}
-                                                disabled={!!actionLoading}
-                                                style={{ background: 'transparent', border: '1px solid #1164A3', color: '#1164A3', borderRadius: '4px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}
-                                                title="Hacer Admin"
-                                            >
-                                                +Admin
-                                            </button>
-                                        )}
+                                    <>
                                         <button 
-                                            onClick={() => handleRemove(member.user_id, member.member_role)}
-                                            disabled={!!actionLoading}
-                                            style={{ background: 'transparent', border: '1px solid #e01e5a', color: '#e01e5a', borderRadius: '4px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}
-                                            title="Expulsar"
+                                            className="user-item-menu-toggle"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setActiveMenuId(activeMenuId === member.user_id ? null : member.user_id);
+                                            }}
+                                            style={{ background: 'transparent', border: 'none', color: 'var(--text-soft)', cursor: 'pointer', padding: '8px', fontSize: '18px' }}
+                                            title="Opciones"
                                         >
-                                            Expulsar
+                                            &#8942;
                                         </button>
-                                    </div>
+
+                                        <div className={`user-item-actions ${activeMenuId === member.user_id ? 'open' : ''}`}>
+                                            {member.member_role === 'user' && (
+                                                <button 
+                                                    onClick={() => {
+                                                        setActiveMenuId(null);
+                                                        handlePromote(member.user_id);
+                                                    }}
+                                                    disabled={!!actionLoading}
+                                                    style={{ background: 'transparent', border: '1px solid #1164A3', color: '#1164A3', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', textAlign: 'center' }}
+                                                >
+                                                    +Admin
+                                                </button>
+                                            )}
+                                            <button 
+                                                onClick={() => {
+                                                    setActiveMenuId(null);
+                                                    handleRemove(member.user_id, member.member_role);
+                                                }}
+                                                disabled={!!actionLoading}
+                                                style={{ background: 'transparent', border: '1px solid #e01e5a', color: '#e01e5a', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', textAlign: 'center' }}
+                                            >
+                                                Expulsar
+                                            </button>
+                                        </div>
+                                    </>
                                 )}
                             </div>
                         ))

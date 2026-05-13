@@ -41,6 +41,7 @@ const WorkspaceScreen = () => {
     const [isSupportModalOpen, setIsSupportModalOpen] = useState(false)
     const [sidebarTab, setSidebarTab] = useState('workspaces') // 'workspaces' or 'dms'
     const [conversations, setConversations] = useState([])
+    const [showWorkspaceInfo, setShowWorkspaceInfo] = useState(false)
     
     // Workspace & Messages State
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
@@ -310,14 +311,32 @@ const WorkspaceScreen = () => {
                             >
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                             </button>
-                            <div style={{ fontWeight: 'bold' }}>
-                                {loadingWorkspace ? 'Cargando...' : workspace ? `# ${workspace.title || workspace.workspace_title || 'general'}` : 'Selecciona un Espacio de Trabajo'}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <div style={{ fontWeight: 'bold' }}>
+                                    {loadingWorkspace ? 'Cargando...' : workspace ? `# ${workspace.title || workspace.workspace_title || 'general'}` : 'Selecciona un Espacio de Trabajo'}
+                                </div>
+                                {workspace && (workspace.description || workspace.workspace_description) && (
+                                    <button 
+                                        onClick={() => setShowWorkspaceInfo(!showWorkspaceInfo)} 
+                                        style={{ background: 'none', border: 'none', color: showWorkspaceInfo ? 'var(--accent-color)' : 'var(--text-soft)', cursor: 'pointer', padding: '0', display: 'flex', alignItems: 'center' }}
+                                        title="Información del Espacio de Trabajo"
+                                    >
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                    </button>
+                                )}
+                                <div title={isMessagesSyncing ? "Sincronizando..." : "Conectado"} style={{ width: '7px', height: '7px', background: isMessagesSyncing ? '#048d21ff99' : '#03a54199', borderRadius: '50%', animation: isMessagesSyncing ? 'slack-pulse 1.5s infinite' : 'none', marginLeft: '4px' }} />
                             </div>
-                            <div title={isMessagesSyncing ? "Sincronizando..." : "Conectado"} style={{ width: '7px', height: '7px', background: isMessagesSyncing ? '#048d21ff99' : '#03a54199', borderRadius: '50%', animation: isMessagesSyncing ? 'slack-pulse 1.5s infinite' : 'none', marginLeft: '4px' }} />
                         </div>
                     </header>
 
                     <div className="slack-chat-messages">
+                        <div style={{ borderBottom: '1px solid var(--border-color)', marginBottom: '20px', paddingBottom: (showWorkspaceInfo && workspace && (workspace.description || workspace.workspace_description)) ? '20px' : '0' }}>
+                            {showWorkspaceInfo && workspace && (workspace.description || workspace.workspace_description) && (
+                                <div style={{ color: 'var(--text-soft)', fontSize: '14px' }}>
+                                    {workspace.description || workspace.workspace_description}
+                                </div>
+                            )}
+                        </div>
                         {workspace && activeChannel ? (
                             <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                                 <div style={{ paddingBottom: '20px', borderBottom: '1px solid var(--border-color)', marginBottom: '20px' }}>
@@ -342,7 +361,7 @@ const WorkspaceScreen = () => {
                                                         <div style={{ width: '1px', height: '16px', background: 'var(--border-color)', margin: '0 8px' }}></div>
                                                         {members.slice(0, 3).map((member, index) => (
                                                             <div key={member.user_id} style={{ marginLeft: index > 0 ? '-8px' : '0', border: '2px solid var(--bg-color)', borderRadius: '50%', overflow: 'hidden', position: 'relative', zIndex: 3 - index }}>
-                                                                <Avatar user={{ name: member.user_name || 'U' }} size="24px" borderRadius="50%" />
+                                                                <Avatar user={{ name: member.user_name || 'U', avatar: member.user_avatar, avatar_config: member.user_avatar_config }} size="24px" borderRadius="50%" />
                                                             </div>
                                                         ))}
                                                         {members.length > 3 && <div style={{ fontSize: '12px', color: 'var(--text-soft)', marginLeft: '4px', fontWeight: 'bold' }}>+{members.length - 3}</div>}

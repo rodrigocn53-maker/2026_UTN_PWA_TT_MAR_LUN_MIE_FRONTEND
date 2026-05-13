@@ -271,7 +271,7 @@ body {
     height: 49px;
     display: flex;
     align-items: center;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: none;
     font-weight: 900;
     font-size: 16px;
     color: var(--text-color);
